@@ -1,0 +1,6 @@
+// Cloudflare deployment: serves site/ as static assets (no build step)
+{
+  "name": "higgs-width-opendata",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./site" }
+}
