@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Higgs Width Study</title>
-<meta name="description" content="Reproducing the tasks of a Higgs boson width PhD project with ATLAS Open Data, MCFM and Geant4: H→ZZ on/off-shell width fit, assumption stability tests, EFT interpretation and electron shower shapes.">
+<meta name="description" content="Work sample for the DESY ATLAS PhD application (EURAXESS 467858): reproducing the tasks of the Higgs boson width project with ATLAS Open Data, MCFM and Geant4: H→ZZ on/off-shell width fit, assumption stability tests, EFT interpretation and electron shower shapes.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
@@ -38,7 +38,7 @@ sub, sup { line-height: 0; }
 nav { position: sticky; top: 0; z-index: 10; background: var(--sheet); border-bottom: 1px solid var(--rule); }
 nav .in { max-width: 1040px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 18px; height: 46px; white-space: nowrap; }
 nav .brand { font-family: "LM Roman Caps", serif; letter-spacing: .06em; font-size: 15px; }
-nav .links { display: flex; gap: 16px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: center; font-size: 15px; }
+nav .links { display: flex; gap: 13px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: safe center; font-size: 15px; }
 nav .links::-webkit-scrollbar { display: none; }
 nav .links a { color: var(--ink-2); }
 nav .links a.active { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
@@ -158,7 +158,7 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
   nav .brand { margin-right: auto; }
   nav .opts .lbl { display: none; }
   nav .links { order: 3; flex-basis: 100%; justify-content: flex-start; }
-  section { scroll-margin-top: 84px; }
+  section { scroll-margin-top: 112px; }
   .sheet { padding: 24px 16px; }
   .preprint span:last-child { display: none; }
   .plot { height: 300px; }
@@ -173,33 +173,37 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
 <nav>
   <div class="in">
     <span class="brand">Γ<sub>H</sub> from H→ZZ</span>
-    <div class="links"><a href="#A">1 Foundation</a><a href="#B">2 Width</a><a href="#C">3 Assumptions</a><a href="#D">4 EFT</a><a href="#E">5 Showers</a><a href="#evidence">6 Reproducibility</a></div>
-    <div class="opts"><span class="lbl">figures</span>
+    <div class="links"><a href="#scope">1 Scope</a><a href="#A">2 On shell</a><a href="#B">3 Width</a><a href="#C">4 Stability</a><a href="#D">5 EFT</a><a href="#E">6 Showers</a><a href="#outlook">7 Outlook</a><a href="#evidence">8 Code</a></div>
+    <div class="opts"><span class="seg" id="layout" role="group" aria-label="Page layout"><button data-href="./">Web</button><button class="on" aria-current="page">Paper</button></span>
       <span class="seg" id="view" role="group" aria-label="Figure style"><button data-v="live" class="on">Interactive</button><button data-v="root">ROOT</button></span></div>
   </div>
 </nav>
 
 <article class="sheet">
-  <div class="preprint"><span>Educational reproduction · not an ATLAS result</span><span>October 2026</span></div>
+  <div class="preprint"><span>Work sample for the application to the <a href="https://euraxess.ec.europa.eu/jobs/467858" target="_blank" rel="noopener">PhD position in the ATLAS group at DESY</a>, ref. FHDO019/2026</span><span>October 2026</span></div>
 
   <header class="titleblock">
-    <h1>How wide is the Higgs boson? The four tasks of an H→ZZ width project, reproduced with open data and open tools</h1>
+    <h1>How wide is the Higgs boson? The four tasks of the DESY ATLAS PhD project, carried out at small scale with open data and open tools</h1>
     <div class="author">Alejandro Guirado</div>
-    <div class="affil">Independent study · ATLAS Open Data (CC0), MCFM 7.0 (JHUGen fork), Geant4 11.4</div>
+    <div class="affil">Applicant, PhD position in the ATLAS group at DESY (EURAXESS 467858)</div>
   </header>
 
   <div class="abstract">
     <h4>Abstract</h4>
-    <p>This study reproduces, at small scale, the four tasks of a PhD project on the Higgs boson width with H→ZZ:
-      the on/off-shell width measurement, its stability under the assumptions behind it, an effective field theory
-      interpretation, and an electron shower-shape study in a liquid-argon calorimeter. The four-lepton selection and the
-      on-shell fit use 36.6 fb⁻¹ of 13 TeV ATLAS Open Data; the off-shell templates come from MCFM; the calorimeter study
-      uses a Geant4 application written for this purpose. Every number in this document is computed by code in the
-      <a href="REPO">accompanying repository</a>. The figures can be shown as interactive plots or as the ATLAS-style ROOT
-      figures (switch in the running head; each ROOT figure opens its PDF).</p>
+    <p>This document accompanies my application to the <a href="https://euraxess.ec.europa.eu/jobs/467858" target="_blank" rel="noopener">PhD position in the
+      ATLAS group at DESY</a>. The vacancy names four tasks: the Higgs boson width from H→ZZ events, tests of the stability of the
+      result under its assumptions, effective field theory interpretations, and a study of electron shower shapes for the authorship
+      qualification. Each is carried out here end to end with public inputs. A four-lepton selection on 36.6 fb⁻¹ of 13 TeV ATLAS Open Data
+      gives $\mu_\text{on} = 0.93^{+0.21}_{-0.19}$ at 6.1σ. A joint on/off-shell fit with MCFM gg→ZZ templates, including the
+      signal–continuum interference, gives $\Gamma_H < 50$ MeV at 95% CL (54 MeV expected) from $m_{4\ell}$ alone. Stress tests show that the
+      K-factor, the continuum normalisation and the equality of on- and off-shell couplings move the result most. The off-shell tail
+      constrains the anomalous couplings to $|a_3| < 1.1$ and $a_2 > -0.52$, where the on-shell rate alone gives no constraint. A Geant4
+      model of an ATLAS-like LAr barrel reproduces the shower-shape variables and their dependence on upstream material. The aim is to
+      show each step built and checked, with its limits stated, not to approach the precision of the ATLAS measurements. All numbers are
+      computed by code in the <a href="REPO">accompanying repository</a>.</p>
   </div>
   <div id="kpis"></div>
-  <div class="kcap">Headline results. Limits at 95% CL.</div>
+  <div class="kcap">Headline results of this study. Limits at 95% CL.</div>
 
   <figure class="fig" style="margin-top:22px">
     <canvas id="event" aria-hidden="true"></canvas>
@@ -207,11 +211,44 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       in colour (the two Z boson pairs), other charged tracks in grey; the rings stand for the detector layers.</figcaption>
   </figure>
 
+<section id="scope">
+  <h2>Purpose and scope</h2>
+  <p>Sections 3–6 follow the four tasks of the vacancy in order; Section 2 is the H→4ℓ selection and on-shell fit they rely on
+    (Table 1). Each section states the method at the level of detail needed to check it, the result, and what is simplified with
+    respect to an ATLAS analysis. The interactive plots and the ATLAS-style ROOT figures show the same results; the switch in the
+    running head selects one or the other.</p>
+  <div class="tcap">The tasks of the vacancy and the sections that address them.</div>
+  <div class="tblwrap"><table class="bt">
+    <tr><th>Task in the vacancy</th><th class="num">Section</th></tr>
+    <tr><td>Higgs boson width determination using H→ZZ events</td><td class="num"><a href="#B">3</a></td></tr>
+    <tr><td>Tests of the stability of the results with respect to various assumptions</td><td class="num"><a href="#C">4</a></td></tr>
+    <tr><td>Effective field theory interpretations</td><td class="num"><a href="#D">5</a></td></tr>
+    <tr><td>Study of electron shower shape development (authorship qualification)</td><td class="num"><a href="#E">6</a></td></tr>
+    <tr><td><i>Prerequisite:</i> H→ZZ*→4ℓ selection and on-shell signal strength</td><td class="num"><a href="#A">2</a></td></tr>
+  </table></div>
+  <p style="margin-top:14px">Table 2 places the width result next to the published ATLAS measurements. At nearly the same luminosity the
+    limit here is about 3.5 times weaker than in 2018 [3]. The difference comes from what is left out on purpose: $m_{4\ell}$ alone does not
+    separate the gg→H* signal from the qq→ZZ continuum as a matrix-element discriminant does, the 2ℓ2ν channel is not used, and the gg
+    templates are LO with a flat K-factor.</p>
+  <div class="tcap">Upper limits on $\Gamma_H$ at 95% CL (central value for the 2023 result).</div>
+  <div class="tblwrap"><table class="bt">
+    <tr><th></th><th>Data</th><th>Channels and observable</th><th class="num">$\Gamma_H$</th></tr>
+    <tr><td>This study</td><td>36.6 fb⁻¹, 2015–16</td><td>4ℓ; $m_{4\ell}$</td><td class="num">&lt; 50 MeV (54 exp.)</td></tr>
+    <tr><td>ATLAS [3]</td><td>36.1 fb⁻¹</td><td>4ℓ + 2ℓ2ν; ME discriminant, $m_\text{T}^{ZZ}$</td><td class="num">&lt; 14.4 MeV</td></tr>
+    <tr><td>ATLAS [4]</td><td>139 fb⁻¹</td><td>4ℓ + 2ℓ2ν</td><td class="num">$4.5^{+3.3}_{-2.5}$ MeV</td></tr>
+  </table></div>
+  <p style="margin-top:14px"><i>Built for this study.</i> The four-lepton selection, background modelling and on-shell fit (uproot, awkward,
+    pyhf); MCFM 7.0 (JHUGen fork) compiled with gfortran 16 on Apple silicon, with two legacy array declarations and a run-time reader for the
+    anomalous HZZ couplings patched; a joint on/off-shell likelihood with interference, written from scratch and unit-tested; a Geant4 11.4
+    application in C++17 with the ATLAS shower-shape definitions; ATLAS-style figures in ROOT, and continuous integration running the 13 unit
+    tests on every push.</p>
+</section>
+
 <section id="A">
   <h2>Rediscovering H→ZZ*→4ℓ</h2>
-  <p class="task"><span class="hd">Task 1</span> <span class="nm">(foundation for every task).</span> Select four-lepton
-    events in 36.6 fb⁻¹ of 13 TeV ATLAS Open Data, pair them into Z bosons and fit the on-shell signal strength
-    $\mu_\text{on}$, which anchors the width measurement.</p>
+  <p class="task"><span class="hd">Prerequisite</span> <span class="nm">(for vacancy tasks 1–3).</span> The off-shell rate measures
+    $\mu_\text{on}\,\Gamma_H/\Gamma_H^\text{SM}$, so the width needs the on-shell signal strength. It is measured from four-lepton events in
+    36.6 fb⁻¹ of 13 TeV ATLAS Open Data (2015–16, education release), with the official MC samples for signal and backgrounds.</p>
   <figure class="fig">
     <div class="panels">
       <div class="panel">
@@ -237,13 +274,15 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       50 GeV, $\Delta R > 0.1$, J/ψ veto.</li>
     <li><i>Reducible background</i> (Z+jets, tt̄) has only a handful of high-weight MC events; its shape is smoothed per sample
       with a kernel estimate and given a 50% normalisation uncertainty.</li>
+    <li><i>Result:</i> $\mu_\text{on} = 0.93^{+0.21}_{-0.19}$, with 6.1σ observed and 7.2σ expected significance (asymptotic formulae); 49 events in
+      115–130 GeV (31 2e2μ, 13 4μ, 5 4e) against 54.4 expected.</li>
   </ul>
   <div class="code">Code: <a href="REPO/blob/main/src/hwidth/selection.py">selection.py</a><a href="REPO/blob/main/src/hwidth/fit_onshell.py">fit_onshell.py</a><a href="REPO/blob/main/tests/test_selection.py">tests</a></div>
 </section>
 
 <section id="B">
   <h2>Width from the off-shell tail</h2>
-  <p class="task"><span class="hd">Task 2</span> <span class="nm">(Higgs boson width determination using H→ZZ events).</span>
+  <p class="task"><span class="hd">Vacancy task 1</span> <span class="nm">(Higgs boson width determination using H→ZZ events).</span>
     Above $2m_Z$ the gg→H*→ZZ rate scales as $\mu_\text{off} = \mu_\text{on}\,\Gamma_H/\Gamma_H^\text{SM}$, while the on-shell
     rate does not depend on $\Gamma_H$ [1, 2]. Comparing both constrains the width. The signal interferes destructively with
     the gg→ZZ continuum, so the expected yield in each $m_{4\ell}$ bin is</p>
@@ -270,12 +309,21 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       efficiency calibrated on ATLAS Open Data qq→ZZ against MCFM at NLO. (b) Observed and expected (SM) profile likelihood in
       $\Gamma_H/\Gamma_H^\text{SM}$ from the joint on/off-shell fit, and the expected limit at higher luminosity.</figcaption>
   </figure>
+  <p><i>Templates.</i> MCFM gg→ZZ→2e2μ at LO (cteq6l1, $\mu_R = \mu_F = m_{4\ell}/2$): processes 130 (S+I), 129 (I) and 132 ($B_{gg}$),
+    with $S = (S+I) - I$ because process 128 returns zero above 220 GeV in this version; qq→ZZ at NLO (process 81, CT10). $K = 1.7$ multiplies
+    S, I and $B_{gg}$, and the 4e and 4μ templates are taken equal to 2e2μ. <i>Detector folding.</i> Efficiency × acceptance per $m_{4\ell}$ bin is the
+    Open Data qq→ZZ sample divided by MCFM NLO, in nine bins from 230 to 1010 GeV (522 events). <i>Likelihood.</i> Poisson terms for the on-shell
+    bins of Section 2 and the off-shell bins, with $\mu_\text{off} = \mu_\text{on} R$, $R = \Gamma_H/\Gamma_H^\text{SM}$, and $\mu_\text{on}$, $R$ and
+    $\mu_{q\bar q}$ free; intervals from $-2\Delta\ln L$ with Wilks' theorem, expected results from Asimov data at $R = 1$.</p>
+  <p><i>Result.</i> $R < 12.2$ observed and $< 13.3$ expected at 95% CL, that is $\Gamma_H < 50$ MeV (54 MeV expected) for
+    $\Gamma_H^\text{SM} = 4.1$ MeV. The best fit is at $R = 0$, with $\mu_{q\bar q} = 1.21$ relative to MCFM NLO. With the same model the expected
+    limit becomes 7.3, 5.5 and 2.6 at 140, 300 and 3000 fb⁻¹ (statistical and $\mu_{q\bar q}$ uncertainties only).</p>
   <div class="code">Code: <a href="REPO/blob/main/src/hwidth/offshell.py">offshell.py</a><a href="REPO/tree/main/generators/mcfm">MCFM cards</a><a href="REPO/blob/main/tests/test_offshell.py">tests</a></div>
 </section>
 
 <section id="C">
   <h2>Stability under the assumptions</h2>
-  <p class="task"><span class="hd">Task 3</span> <span class="nm">(tests of the stability of the results with respect to various
+  <p class="task"><span class="hd">Vacancy task 2</span> <span class="nm">(tests of the stability of the results with respect to various
     assumptions).</span> Each scenario changes one assumption of the baseline fit. Pseudo-data are generated with the baseline
     model at $\Gamma_H = \Gamma_H^\text{SM}$ and HL-LHC luminosity (3000 fb⁻¹), so any shift away from 1 is the bias the
     assumption would introduce.</p>
@@ -299,7 +347,14 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       loop), a fit that assumes $c = 1$ returns $c\,\Gamma_H$. Lower panel: the indirect width from coupling fits holds only if
       the branching ratio to invisible or undetected states, $B_\text{BSM}$, is zero.</figcaption>
   </figure>
-  <p><i>Relaxing the on/off-shell link.</i> <span id="C-decoupled"></span></p>
+  <p><i>K-factor.</i> 1.4 or 2.0 instead of 1.7 moves the fitted width from 1.0 to 0.4 or 1.8: an 18% change in K shifts the width by
+    60–80%. With a form factor in the loop, this is the largest effect at HL-LHC luminosity, so the K-factors of S, I and B and their
+    correlation matter as much as the data. <i>Continuum normalisation.</i> Constraining $\mu_{q\bar q}$ to the MC prediction within 10%, when the
+    pseudo-data carry 1.21, pulls the width to 0.05: with $m_{4\ell}$ alone the continuum normalisation and the width are strongly correlated.
+    <i>New physics in the loop.</i> A form factor $1/(1 + (m_{4\ell}/\Lambda)^2)$ on the off-shell amplitude biases the width to 1.4 for
+    $\Lambda = 1$ TeV and 2.6 for 500 GeV.</p>
+  <p><i>Relaxing the on/off-shell link.</i> <span id="C-decoupled"></span> If the couplings differ by a factor $c$ off shell, the fit returns
+    $c\,\Gamma_H$ exactly (Figure 4b): the width result is a statement on this assumption as much as on $\Gamma_H$.</p>
   <div class="tcap">Upper limits on $\Gamma_H/\Gamma_H^\text{SM}$ at 95% CL with 36.6 fb⁻¹, and the width fitted to HL-LHC pseudo-data, for each scenario.</div>
   <div class="tblwrap"><table class="bt" id="C-table"></table></div>
   <div class="code">Code: <a href="REPO/blob/main/scripts/run_moduleC.py">run_moduleC.py</a></div>
@@ -307,7 +362,7 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
 
 <section id="D">
   <h2>Effective field theory interpretation</h2>
-  <p class="task"><span class="hd">Task 4</span> <span class="nm">(effective field theory interpretations).</span> Anomalous HZZ
+  <p class="task"><span class="hd">Vacancy task 3</span> <span class="nm">(effective field theory interpretations).</span> Anomalous HZZ
     couplings $a_2$ (CP-even) and $a_3$ (CP-odd) correspond to dimension-6 operators of the Higgs basis. Their amplitudes grow
     with energy through the HZZ vertex, so the off-shell tail constrains them far better than the on-shell rate.</p>
   <figure class="fig">
@@ -330,13 +385,18 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       degeneracy remains: the larger signal is cancelled by the stronger destructive interference, which angular observables
       would resolve.</figcaption>
   </figure>
+  <p><i>Method.</i> MCFM-JHUGen with the anomalous HZZ couplings set at run time (patched reader) and $\Gamma_H = \Gamma_H^\text{SM}$; the off-shell S
+    and I templates are interpolated quadratically in each coupling. On shell, $\sigma/\sigma_\text{SM} = 1 + 1.10\,a_2 + 0.40\,a_2^2$ and
+    $1 + 0.149\,a_3^2$; with $\mu_F$ profiled, rates alone cannot separate a coupling from the overall gg→H strength. Off shell, the signal at
+    $a_2 = 0.5$ ($a_3 = 0.5$) is 3.6 (2.8) times the SM in 230–1010 GeV. <i>Result.</i> $|a_3| < 1.1$ and $a_2 > -0.52$ at 95% CL (expected
+    ±1.1 and −0.60), with the couplings as defined in MCFM-JHUGen and a scanned range of $[-3, 3]$.</p>
   <div class="code">Code: <a href="REPO/blob/main/scripts/run_moduleD.py">run_moduleD.py</a><a href="REPO/blob/main/generators/mcfm/make_cards.py">EFT cards</a><a href="REPO/blob/main/generators/mcfm/patches">MCFM patch</a></div>
 </section>
 
 <section id="E">
   <h2>Electron shower shapes in a LAr calorimeter</h2>
-  <p class="task"><span class="hd">Task 5</span> <span class="nm">(study of electron shower shape development; authorship
-    qualification).</span> A Geant4 application in C++ [5] models an ATLAS-like barrel: presampler, fine-η strips, middle and
+  <p class="task"><span class="hd">Vacancy task 4</span> <span class="nm">(study of electron shower shape development; authorship
+    qualification).</span> A Geant4 application in C++ [6] models an ATLAS-like barrel: presampler, fine-η strips, middle and
     back Pb/LAr layers with ATLAS cell sizes, plus an Fe/scintillator hadronic section. 32 000 showers of e⁻, γ, π⁰ and π⁻
     were simulated at 10–100 GeV.</p>
   <figure class="fig">
@@ -368,14 +428,35 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       calorimeter, the main source of data/MC differences in shower shapes. (c) Background rejection versus signal efficiency
       for single-variable cuts. (d) Mean longitudinal energy profile, in radiation lengths, and the fitted energy resolution.</figcaption>
   </figure>
+  <p><i>Geometry.</i> Periods of 1.5 mm Pb and 4.2 mm LAr ($X_0^\text{eff} \approx 19$ mm) give about 4.3, 16 and 2 $X_0$ in the strip,
+    middle and back layers, with ATLAS cell sizes in η×φ, a presampler and an Fe/scintillator section of about 5λ. Upstream material is an
+    aluminium slab of 0–6 $X_0$. FTFP_BERT, no magnetic field, impact at a cell centre. <i>Calibration.</i> Sampling fraction 0.241; electron
+    resolution $8.4\%/\sqrt{E}$ with a constant term compatible with zero (photons $8.7\%/\sqrt{E} \oplus 0.4\%$); shower maximum at 5.2 $X_0$
+    for e⁻ and 6.2 $X_0$ for γ at 50 GeV from a Gamma-function fit. <i>Material.</i> From 0 to 6 $X_0$ upstream, $R_\eta$ of 50 GeV electrons
+    falls from 0.969 to 0.933, $f_1$ rises from 0.10 to 0.52 and the mean reconstructed energy drops from 50.4 to 34.7 GeV: the mechanism behind
+    the data/MC shower-shape differences that the authorship task addresses.</p>
   <div class="code">Code: <a href="REPO/tree/main/g4calo">g4calo (C++)</a><a href="REPO/blob/main/src/hwidth/showers.py">showers.py</a><a href="REPO/blob/main/tests/test_showers.py">tests</a></div>
+</section>
+
+<section id="outlook">
+  <h2>Outlook for the PhD</h2>
+  <p>Each part of this study has a direct counterpart in the full analysis.</p>
+  <ul class="items">
+    <li><i>Width.</i> A matrix-element or neural-network discriminant, the 2ℓ2ν channel and the VBF/EW off-shell component, with the full
+      Run-2 and Run-3 datasets.</li>
+    <li><i>Theory inputs.</i> Higher-order gg→ZZ K-factors for signal, continuum and interference with their uncertainties, instead of one flat factor.</li>
+    <li><i>Assumptions.</i> Each scenario of Section 4 as an explicit nuisance parameter or alternative model in the fit, and a measurement of which
+      ones the data can constrain.</li>
+    <li><i>EFT.</i> SMEFT in the Warsaw basis with full interference, and angular observables to lift the $a_2$ degeneracy.</li>
+    <li><i>Shower shapes.</i> Full ATLAS simulation and data, with data/MC corrections derived and validated on Z→ee and radiative Z decays.</li>
+  </ul>
 </section>
 
 <section id="evidence">
   <h2>Reproducibility</h2>
   <dl class="desc">
-    <dt>Data.</dt><dd>ATLAS Open Data 13 TeV, 2025 education release, <code>exactly4lep</code> skim (36.6 fb⁻¹) [6].</dd>
-    <dt>Generators.</dt><dd>MCFM 7.0 (JHUGen fork) [4] for gg→ZZ signal, interference, continuum and anomalous couplings; MCFM NLO
+    <dt>Data.</dt><dd>ATLAS Open Data 13 TeV, 2025 education release, <code>exactly4lep</code> skim (36.6 fb⁻¹) [7].</dd>
+    <dt>Generators.</dt><dd>MCFM 7.0 (JHUGen fork) [5] for gg→ZZ signal, interference, continuum and anomalous couplings; MCFM NLO
       qq→ZZ. Built with gfortran 16 on Apple silicon (two legacy array declarations and a run-time coupling reader patched).</dd>
     <dt>Simulation.</dt><dd>Geant4 11.4.3 [5], C++17, FTFP_BERT.</dd>
     <dt>Analysis.</dt><dd>Python, uproot, awkward, pyhf, iminuit, scipy, pytest; figures with ROOT 6.40 (PyROOT).</dd>
@@ -390,14 +471,15 @@ python scripts/plots_root.py      # ROOT figures
 pytest</pre>
   <p class="small" style="margin-bottom:2px"><i>ROOT figures (PDF):</i></p>
   <div class="figlist" id="figlist"></div>
-  <p><i>Limits of this study.</i> Education-level open data (36.6 fb⁻¹, two years), $m_{4\ell}$ only (no matrix-element
-    discriminant), LO gg templates with a flat K-factor, no VBF off-shell component, a planar toy calorimeter. The results are an
-    educational reproduction, not ATLAS results.</p>
+  <p><i>Simplifications.</i> Education-release open data (36.6 fb⁻¹, 2015–16); $m_{4\ell}$ only, without a matrix-element discriminant or the
+    2ℓ2ν channel; LO gg templates with a flat K-factor; 4e and 4μ off-shell templates equal to 2e2μ; no VBF off-shell component; a planar
+    calorimeter without magnetic field. The results are my own reproduction for this application, not ATLAS results.</p>
 
   <h3 style="font-size:17px;margin:22px 0 4px">References</h3>
   <ol class="refs">
     <li>F. Caola and K. Melnikov, Constraining the Higgs boson width with ZZ production at the LHC, Phys. Rev. D 88 (2013) 054024, arXiv:1307.4935.</li>
     <li>N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal, JHEP 08 (2012) 116, arXiv:1206.4803.</li>
+    <li>ATLAS Collaboration, Constraints on off-shell Higgs boson production and the Higgs boson total width in ZZ→4ℓ and ZZ→2ℓ2ν final states with the ATLAS detector, Phys. Lett. B 786 (2018) 223.</li>
     <li>ATLAS Collaboration, Evidence of off-shell Higgs boson production from ZZ leptonic decay channels and constraints on its total width with the ATLAS detector, Phys. Lett. B 846 (2023) 138223.</li>
     <li>J. M. Campbell, R. K. Ellis and C. Williams, MCFM, Monte Carlo for FeMtobarn processes, <a href="https://mcfm.fnal.gov">mcfm.fnal.gov</a>.</li>
     <li>S. Agostinelli et al. (Geant4), Geant4 — a simulation toolkit, Nucl. Instrum. Meth. A 506 (2003) 250.</li>
@@ -406,7 +488,8 @@ pytest</pre>
 </section>
 </article>
 
-<footer>Data: ATLAS Open Data (CC0). This document is not affiliated with the ATLAS Collaboration or DESY. Typeset in Latin Modern.</footer>
+<footer>Prepared by Alejandro Guirado as a work sample for the application to the <a href="https://euraxess.ec.europa.eu/jobs/467858" target="_blank" rel="noopener">PhD position in the
+  ATLAS group at DESY</a> (ref. FHDO019/2026). Data: ATLAS Open Data (CC0). Not affiliated with the ATLAS Collaboration or DESY. Typeset in Latin Modern.</footer>
 
 <script>
 const REPO = "https://github.com/AlejandroGuiradoMexa/higgs-width-opendata";
@@ -444,6 +527,9 @@ const typeset = t => t.replace(/->/g, "→").replace(/Lambda/g, "Λ").replace(/s
   .replace(/\bK_I\b/g, "K<sub>I</sub>").replace(/\bqq\b/g, "qq̄");
 const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
 const dotted = (x0, x1, y) => ({ type: "line", x0, x1, y0: y, y1: y, line: { dash: "dot", color: css("--ink-2"), width: 1 } });
+
+// Page layout switch: go to the other version, keeping the section in view (figure style is shared via localStorage).
+document.querySelectorAll("#layout button[data-href]").forEach(b => b.onclick = () => { location.href = b.dataset.href + location.search + location.hash; });
 
 // Interactive (Plotly) or static ROOT figures. Each plot with a ROOT version gets a <figure> next to it;
 // the function returns the figure name for the current controls, or null to keep the interactive plot.
