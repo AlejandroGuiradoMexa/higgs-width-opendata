@@ -36,7 +36,7 @@ site/              one-page website (static HTML + Plotly)
 
 ## Reproduce
 
-Requirements: Python ≥ 3.11, ROOT ≥ 6.30 with PyROOT (figures), gfortran, CMake, Geant4 ≥ 11 (built with `GEANT4_INSTALL_DATA=ON`), and MCFM-7.0_JHUGen with `generators/mcfm/patches/mcfm-7.0-jhugen.patch` (see the patch README) in `~/opt/src/MCFM-7.0_JHUGen`.
+Requirements: Python ≥ 3.11, ROOT ≥ 6.30 with PyROOT, Ghostscript and poppler (figures and their web copies), gfortran, CMake, Geant4 ≥ 11 (built with `GEANT4_INSTALL_DATA=ON`), and MCFM-7.0_JHUGen with `generators/mcfm/patches/mcfm-7.0-jhugen.patch` (see the patch README) in `~/opt/src/MCFM-7.0_JHUGen`.
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -e . pytest

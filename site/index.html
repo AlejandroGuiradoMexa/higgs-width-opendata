@@ -36,11 +36,24 @@ code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size:
 
 /* Nav */
 nav { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); background: color-mix(in srgb, var(--bg) 82%, transparent); border-bottom: 1px solid var(--border); }
-nav .wrap { display: flex; align-items: center; gap: 18px; height: 56px; overflow-x: auto; white-space: nowrap; }
-nav .brand { font-weight: 700; letter-spacing: .02em; margin-right: auto; }
+nav .wrap { display: flex; align-items: center; gap: 14px; height: 56px; white-space: nowrap; }
+nav .brand { font-weight: 700; letter-spacing: .02em; }
+nav .links { display: flex; gap: 18px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: flex-end; }
+nav .links::-webkit-scrollbar { display: none; }
 nav a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; }
 nav a.active, nav a:hover { color: var(--text); }
+#view button { padding: 4px 10px; }
 #theme { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+
+/* ROOT figures (static, vector) shown instead of the interactive plots */
+.rootfig { display: none; margin: 0; }
+.rootfig a { display: block; }
+.rootfig img { display: block; width: 100%; height: auto; background: #fff; border-radius: 10px; border: 1px solid var(--border); }
+.rootfig figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+body.root-mode .rootfig.has { display: block; }
+body.root-mode .plot.has-root, body.root-mode .live-only { display: none; }
+.figlist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.figlist a { font-size: 13px; text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; color: var(--text); background: var(--surface-2); }
 
 /* Hero */
 header.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
@@ -91,6 +104,16 @@ td.num { font-family: "JetBrains Mono", monospace; text-align: right; }
 footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.in { opacity: 1; transform: none; }
+@media (max-width: 700px) {
+  nav .wrap { flex-wrap: wrap; height: auto; padding-top: 8px; padding-bottom: 8px; row-gap: 6px; }
+  nav .brand { margin-right: auto; }
+  nav .links { order: 3; flex-basis: 100%; justify-content: flex-start; }
+  section { scroll-margin-top: 92px; }
+  /* Event display above the text instead of behind it */
+  #event { position: relative; display: block; height: 230px; }
+  .hero .wrap { padding: 4px 16px 48px; }
+  .lead { font-size: 16px; }
+}
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } }
 </style>
 </head>
@@ -98,7 +121,8 @@ footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 
 <nav>
   <div class="wrap">
     <span class="brand">Γ<sub>H</sub> portfolio</span>
-    <a href="#A">A · H→4ℓ</a><a href="#B">B · Width</a><a href="#C">C · Assumptions</a><a href="#D">D · EFT</a><a href="#E">E · Showers</a><a href="#evidence">Evidence</a>
+    <div class="links"><a href="#A">A · H→4ℓ</a><a href="#B">B · Width</a><a href="#C">C · Assumptions</a><a href="#D">D · EFT</a><a href="#E">E · Showers</a><a href="#evidence">Evidence</a></div>
+    <span class="seg" id="view" role="group" aria-label="Figure style"><button data-v="live" class="on">Interactive</button><button data-v="root">ROOT</button></span>
     <button id="theme" type="button" aria-label="Toggle colour theme">◐</button>
   </div>
 </nav>
@@ -110,7 +134,8 @@ footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 
     <h1>How wide is the Higgs boson? Four tasks, rebuilt from open tools.</h1>
     <p class="lead">This page reproduces, at small scale, the four tasks of a PhD project on the Higgs boson width with H→ZZ:
       the on/off-shell width measurement, its stability under the assumptions behind it, an EFT interpretation, and an
-      electron shower-shape study in a LAr calorimeter. Every number below comes from code in the linked repository.</p>
+      electron shower-shape study in a LAr calorimeter. Every number below comes from code in the linked repository. Use <b>ROOT</b> in the top bar to swap the interactive plots for the
+      ATLAS-style figures made with ROOT (click one to open its PDF).</p>
     <div class="kpis" id="kpis"></div>
   </div>
 </header>
@@ -124,7 +149,7 @@ footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 
   <div class="grid2">
     <div class="card">
       <h3>Four-lepton invariant mass</h3>
-      <div class="controls"><span class="seg" id="A-range">
+      <div class="controls live-only"><span class="seg" id="A-range">
         <button data-r="80,250" class="on">80–250 GeV</button><button data-r="105,160">Higgs peak</button></span></div>
       <div id="plot-A" class="plot"></div>
     </div>
@@ -151,7 +176,7 @@ footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 
   <div class="grid2">
     <div class="card">
       <h3>Off-shell m<sub>4ℓ</sub> as the width changes</h3>
-      <div class="controls"><label for="R">Γ<sub>H</sub>/Γ<sub>H</sub><sup>SM</sup></label>
+      <div class="controls live-only"><label for="R">Γ<sub>H</sub>/Γ<sub>H</sub><sup>SM</sup></label>
         <input type="range" id="R" min="0" max="30" step="0.5" value="1"><span class="readout" id="R-out"></span></div>
       <div id="plot-B" class="plot"></div>
       <p class="note">Templates: MCFM 7.0 (JHUGen fork) gg→ZZ→2e2μ at LO with K = 1.7, folded with a per-bin efficiency calibrated on ATLAS Open Data qq→ZZ against MCFM NLO.</p>
@@ -222,7 +247,7 @@ footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 32px 0 
   <div class="grid2">
     <div class="card">
       <h3>Shower-shape distributions at 50 GeV</h3>
-      <div class="controls"><select id="E-var"></select><span class="seg" id="E-part"></span></div>
+      <div class="controls"><select id="E-var"></select><span class="seg live-only" id="E-part"></span></div>
       <div id="plot-E" class="plot"></div>
     </div>
     <div class="card">
@@ -265,6 +290,8 @@ generators/mcfm/run_mcfm.sh; generators/mcfm/run_eft.sh
 python scripts/run_moduleB.py; python scripts/run_moduleC.py; python scripts/run_moduleD.py
 g4calo/run_production.sh 1000; python scripts/run_moduleE.py
 pytest</pre>
+      <h3 style="margin-top:14px">ROOT figures (PDF)</h3>
+      <div class="figlist" id="figlist"></div>
       <p class="note" style="margin-top:10px">Limits of this study: education-level open data (36.6 fb⁻¹, two years), m<sub>4ℓ</sub> only (no matrix-element discriminant), LO gg templates with a flat K-factor, no VBF off-shell component, a planar toy calorimeter. Results are an educational reproduction, not ATLAS results.</p>
     </div>
   </div>
@@ -304,6 +331,47 @@ const centres = e => e.slice(0, -1).map((x, i) => (x + e[i + 1]) / 2);
 const lim = x => x >= 24.99 ? "> 25" : `< ${fmt(x, 1)}`;
 const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
 
+// Interactive (Plotly) or static ROOT figures. Each plot with a ROOT version gets a <figure> next to it;
+// the function returns the figure name for the current controls, or null to keep the interactive plot.
+const sel1 = q => document.querySelector(q);
+const ROOTFIG = {
+  "plot-A": () => "moduleA_m4l", "plot-A2": () => "moduleA_scan",
+  "plot-B": () => "moduleB_offshell", "plot-B2": () => "moduleB_scan",
+  "plot-C": () => "moduleC_assumptions",
+  "plot-D2": () => "moduleD_eft_" + sel1("#D-c .on").dataset.c,
+  "plot-E": () => { const v = sel1("#E-var").value; return ["R_eta", "w_eta2", "ws_tot", "E_ratio", "R_had", "E_over_p"].includes(v) ? "moduleE_" + v : null; },
+  "plot-E3": () => ({ gamma_vs_pi0: "moduleE_roc_gamma_vs_pi0", "e-_vs_pi-": "moduleE_roc_em_vs_pim" })[sel1("#E-roc .on").dataset.k],
+  "plot-E4": () => "moduleE_profile",
+};
+const FIGS = ["moduleA_m4l", "moduleA_m4l_offshell", "moduleA_scan", "moduleB_offshell", "moduleB_scan", "moduleC_assumptions",
+  "moduleD_eft_a2", "moduleD_eft_a3", "moduleE_R_eta", "moduleE_w_eta2", "moduleE_ws_tot", "moduleE_E_ratio", "moduleE_R_had",
+  "moduleE_E_over_p", "moduleE_profile", "moduleE_roc_gamma_vs_pi0", "moduleE_roc_em_vs_pim"];
+document.getElementById("figlist").innerHTML = FIGS.map(f => `<a href="root/${f}.pdf" target="_blank" rel="noopener">${f.replace("module", "")}</a>`).join("");
+Object.keys(ROOTFIG).forEach(id => {
+  const fig = document.createElement("figure"); fig.className = "rootfig"; fig.id = id + "-root";
+  fig.innerHTML = `<a target="_blank" rel="noopener"><img alt="ROOT figure"></a><figcaption>ROOT, ATLAS style · click to open the PDF</figcaption>`;
+  document.getElementById(id).after(fig);
+});
+let rootMode = false;
+function updateFigures() {
+  Object.entries(ROOTFIG).forEach(([id, f]) => {
+    const name = rootMode ? f() : null, plot = document.getElementById(id), fig = document.getElementById(id + "-root");
+    plot.classList.toggle("has-root", !!name); fig.classList.toggle("has", !!name);
+    if (name) { const img = fig.querySelector("img"); if (!img.src.endsWith(name + ".svg")) { img.src = `root/${name}.svg`; img.alt = name; fig.querySelector("a").href = `root/${name}.pdf`; } }
+  });
+  if (!rootMode && window.Plotly) document.querySelectorAll(".plot").forEach(p => { if (p.data) Plotly.Plots.resize(p); });
+}
+function setView(v) {
+  rootMode = v === "root"; document.body.classList.toggle("root-mode", rootMode);
+  document.querySelectorAll("#view button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  try { localStorage.setItem("view", v); } catch (e) {}
+  updateFigures();
+}
+document.querySelectorAll("#view button").forEach(b => b.onclick = () => setView(b.dataset.v));
+// Controls that choose the figure (a2/a3, variable, ROC pair) also switch the ROOT image.
+document.addEventListener("click", e => { if (rootMode && e.target.closest(".controls")) requestAnimationFrame(updateFigures); });
+document.addEventListener("change", () => { if (rootMode) updateFigures(); });
+
 // Hero: a stylised four-lepton event drawn in a transverse view.
 (function heroEvent() {
   const cv = document.getElementById("event"), ctx = cv.getContext("2d");
@@ -322,7 +390,8 @@ const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
   function draw(now) {
     const w = cv.width = cv.clientWidth * devicePixelRatio, h = cv.height = cv.clientHeight * devicePixelRatio;
     ctx.clearRect(0, 0, w, h);
-    const cx = w * .78, cy = h * .5, R = Math.min(w, h) * .45, p = reduce ? 1 : Math.min(1, (now - t0) / 1400);
+    const narrow = cv.clientWidth < 700;  // phones: detector centred above the text
+    const cx = w * (narrow ? .5 : .78), cy = h * .5, R = Math.min(w, h) * (narrow ? .46 : .45), p = reduce ? 1 : Math.min(1, (now - t0) / 1400);
     ctx.lineWidth = 1 * devicePixelRatio;
     [0.35, 0.62, 0.8, 1].forEach((r, k) => { ctx.strokeStyle = css("--border"); ctx.beginPath(); ctx.arc(cx, cy, R * r, 0, 2 * Math.PI); ctx.stroke(); });
     tracks.forEach(tr => {
@@ -515,6 +584,10 @@ fetch("data.json").then(r => r.json()).then(D => {
     document.getElementById("E-stats").innerHTML = stat(`${fmt(100 * r["e-"].stochastic, 1)}%/√E`, "e⁻ stochastic term") +
       stat(`${fmt(E.profile["e-"].t_max, 1)} X₀`, "e⁻ shower max, 50 GeV") + stat(`${fmt(E.sampling_fraction, 3)}`, "sampling fraction");
   }
+  // ?view=root in the URL, or the viewer's last choice
+  let v0 = new URLSearchParams(location.search).get("view");
+  try { v0 = v0 || localStorage.getItem("view"); } catch (e) {}
+  if (v0 === "root") setView("root");
 }).catch(err => { document.getElementById("kpis").innerHTML = `<div class="kpi"><b>–</b><span>Could not load data.json (${err.message}). Serve the folder over HTTP.</span></div>`; });
 </script>
 </body>

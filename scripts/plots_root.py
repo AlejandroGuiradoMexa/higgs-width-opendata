@@ -6,6 +6,8 @@ results/figures/. Run after the module scripts:
 """
 import json
 import pathlib
+import shutil
+import subprocess
 
 import numpy as np
 import ROOT
@@ -99,9 +101,21 @@ def canvas(name, w=800, h=600):
     return keep(ROOT.TCanvas(name, name, w, h))
 
 
+def embed_fonts(pdf):
+    """ROOT writes the base-14 fonts without embedding them and on an A4 page with a crop box, so some
+    viewers drop the Symbol glyphs (Δ, σ, μ). Ghostscript embeds the fonts and makes the crop box the page."""
+    if not shutil.which("gs"):
+        return
+    tmp = pdf.with_suffix(".tmp.pdf")
+    subprocess.run(["gs", "-q", "-sDEVICE=pdfwrite", "-dUseCropBox", "-dPDFSETTINGS=/prepress", "-dEmbedAllFonts=true",
+                    "-o", str(tmp), "-c", "<</NeverEmbed []>> setdistillerparams", "-f", str(pdf)], check=True)
+    tmp.replace(pdf)
+
+
 def save(c, name):
     c.SaveAs(str(FIG / f"{name}.png"))
     c.SaveAs(str(FIG / f"{name}.pdf"))
+    embed_fonts(FIG / f"{name}.pdf")
     _keep.clear()
 
 

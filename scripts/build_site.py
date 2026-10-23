@@ -1,7 +1,12 @@
-"""Bundle results/*.json into site/data.json (only what the web page plots) and copy figures."""
+"""Bundle results/*.json into site/data.json (only what the web page plots) and copy the ROOT figures.
+
+Each ROOT PDF goes to site/root/ together with an SVG made by pdftocairo (poppler): the SVG is the
+same vector drawing, which browsers show inline on every device, and the PDF is the download link.
+"""
 import json
 import pathlib
 import shutil
+import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
@@ -36,10 +41,13 @@ def main():
         data["E"] = e
     SITE.mkdir(exist_ok=True)
     (SITE / "data.json").write_text(json.dumps(data, separators=(",", ":")))
-    figs = SITE / "figures"
+    figs = SITE / "root"
     figs.mkdir(exist_ok=True)
-    for f in (RES / "figures").glob("*.png"):
+    pdfs = sorted((RES / "figures").glob("*.pdf"))
+    for f in pdfs:
         shutil.copy(f, figs / f.name)
+        subprocess.run(["pdftocairo", "-svg", str(f), str(figs / f.with_suffix(".svg").name)], check=True)
+    print(f"site/root: {len(pdfs)} ROOT figures (PDF + SVG)")
     print(f"site/data.json: {(SITE / 'data.json').stat().st_size / 1024:.0f} kB, modules: {sorted(data)}")
 
 
