@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en" style="color-scheme: light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Higgs Width Study</title>
+<meta name="description" content="Reproducing the tasks of a Higgs boson width PhD project with ATLAS Open Data, MCFM and Geant4: H→ZZ on/off-shell width fit, assumption stability tests, EFT interpretation and electron shower shapes.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+/* Latin Modern (GUST Font License), the OpenType version of Knuth's Computer Modern */
+@font-face { font-family: "LM Roman"; src: url(fonts/lmroman10-regular.otf) format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "LM Roman"; src: url(fonts/lmroman10-italic.otf) format("opentype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "LM Roman"; src: url(fonts/lmroman10-bold.otf) format("opentype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "LM Roman"; src: url(fonts/lmroman10-bolditalic.otf) format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "LM Roman Caps"; src: url(fonts/lmromancaps10-regular.otf) format("opentype"); font-display: swap; }
+@font-face { font-family: "LM Mono"; src: url(fonts/lmmono10-regular.otf) format("opentype"); font-display: swap; }
+
+:root {
+  --ground: #e7e6e1; --sheet: #ffffff; --ink: #111111; --ink-2: #4a4a4a; --rule: #111111; --hair: #c9c8c2; --tint: #f4f3ef;
+  --link: #1f3f8f;
+  --c-h: #00b4d8; --c-zz: #ff6b6b; --c-oth: #6b59d3; --c-amb: #ffb703;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.5 "LM Roman", "Latin Modern Roman", "Computer Modern Serif", Georgia, serif;
+       font-kerning: normal; font-variant-ligatures: common-ligatures; -webkit-font-smoothing: antialiased; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sc { font-family: "LM Roman Caps", "LM Roman", serif; letter-spacing: .03em; }
+code, pre, .tt { font-family: "LM Mono", "Latin Modern Mono", ui-monospace, monospace; font-size: .94em; }
+sub, sup { line-height: 0; }
+.katex { font-size: 1em; }
+
+/* Running head */
+nav { position: sticky; top: 0; z-index: 10; background: var(--sheet); border-bottom: 1px solid var(--rule); }
+nav .in { max-width: 1040px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 18px; height: 46px; white-space: nowrap; }
+nav .brand { font-family: "LM Roman Caps", serif; letter-spacing: .06em; font-size: 15px; }
+nav .links { display: flex; gap: 16px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; justify-content: center; font-size: 15px; }
+nav .links::-webkit-scrollbar { display: none; }
+nav .links a { color: var(--ink-2); }
+nav .links a.active { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+nav .opts { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+nav .opts .lbl { color: var(--ink-2); font-style: italic; }
+
+/* Buttons: rectangular, ruled */
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--rule); }
+.seg button { background: transparent; color: var(--ink); border: 0; border-left: 1px solid var(--rule); padding: 2px 10px; font: inherit; font-size: 14px; cursor: pointer; border-radius: 0; }
+.seg button:first-child { border-left: 0; }
+.seg button.on { background: var(--ink); color: var(--sheet); }
+select { background: var(--sheet); color: var(--ink); border: 1px solid var(--rule); border-radius: 0; padding: 2px 6px; font: inherit; font-size: 14px; }
+input[type=range] { accent-color: var(--ink); width: 220px; max-width: 100%; }
+
+/* The sheet */
+.sheet { max-width: 1040px; margin: 28px auto 40px; background: var(--sheet); border: 1px solid var(--hair); padding: 56px 72px 48px; }
+.preprint { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); border-bottom: .5px solid var(--hair); padding-bottom: 6px; }
+.titleblock { text-align: center; margin: 40px 0 26px; }
+h1 { font-weight: 700; font-size: clamp(25px, 3.6vw, 34px); line-height: 1.2; margin: 0 auto 18px; max-width: 800px; }
+.author { font-family: "LM Roman Caps", serif; font-size: 18px; letter-spacing: .04em; }
+.affil { font-style: italic; color: var(--ink-2); font-size: 15px; margin-top: 2px; }
+.abstract { max-width: 720px; margin: 26px auto 0; font-size: 15.5px; text-align: justify; hyphens: auto; }
+.abstract h4 { text-align: center; font-size: 15.5px; margin: 0 0 6px; }
+
+/* Headline results: booktabs-style strip */
+#kpis { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 820px; margin: 22px auto 0; border-top: 1.4px solid var(--rule); border-bottom: 1.4px solid var(--rule); }
+.kpi { padding: 9px 12px; text-align: center; border-left: .5px solid var(--hair); }
+.kpi:first-child { border-left: 0; }
+.kpi b { display: block; font-size: 20px; font-weight: 400; white-space: nowrap; }
+.kpi b small { font-size: 13px; }
+.kpi span { font-size: 13px; color: var(--ink-2); font-style: italic; }
+.kcap { max-width: 820px; margin: 6px auto 0; font-size: 13.5px; color: var(--ink-2); text-align: center; }
+
+/* Sections */
+section { padding-top: 34px; scroll-margin-top: 54px; counter-increment: sec; }
+h2 { font-size: 22px; font-weight: 700; margin: 0 0 12px; display: flex; gap: 16px; align-items: baseline; }
+h2::before { content: counter(sec); min-width: 1.2em; }
+#evidence h2::before { content: counter(sec); }
+p { margin: 0 0 12px; text-align: justify; hyphens: auto; }
+.task { margin: 0 0 18px; text-align: justify; hyphens: auto; }
+.task .hd { font-weight: 700; }
+.task .nm { font-style: italic; }
+.eq { margin: 10px 0 14px; text-align: center; overflow-x: auto; }
+
+/* Figures: two panels per row, (a)(b)… labels, numbered caption */
+body { counter-reset: sec fig tab; }
+figure.fig { margin: 18px 0 24px; counter-increment: fig; }
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; }
+.panel { min-width: 0; counter-increment: sub; }
+.panels { counter-reset: sub; }
+.panel > .ph { font-size: 15px; margin: 0 0 4px; }
+.panel > .ph::before { content: "(" counter(sub, lower-alpha) ") "; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 2px 0 6px; font-size: 14px; min-height: 26px; }
+.ctl label { font-style: italic; color: var(--ink-2); }
+.readout { font-family: "LM Mono", monospace; font-size: 13.5px; }
+.plot { width: 100%; height: 340px; border: 0; }
+.sub-ph { font-size: 15px; margin: 14px 0 2px; }
+figcaption.cap { margin-top: 12px; font-size: 14.5px; text-align: justify; hyphens: auto; padding-top: 8px; border-top: .5px solid var(--hair); }
+figcaption.cap::before { content: "Figure " counter(fig) ": "; font-weight: 700; }
+.small { font-size: 14px; color: var(--ink-2); }
+
+/* ROOT figures (static, vector) shown instead of the interactive plots */
+.rootfig { display: none; margin: 0; }
+.rootfig a { display: block; }
+.rootfig img { display: block; width: 100%; height: auto; background: #fff; border: .5px solid var(--hair); }
+.rootfig figcaption { font-size: 13px; color: var(--ink-2); font-style: italic; margin-top: 4px; }
+body.root-mode .rootfig.has { display: block; }
+body.root-mode .plot.has-root, body.root-mode .live-only { display: none; }
+
+/* Booktabs tables */
+.tblwrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+table.bt { border-top: 1.4px solid var(--rule); border-bottom: 1.4px solid var(--rule); }
+table.bt th { font-weight: 400; font-style: italic; text-align: left; padding: 5px 8px; border-bottom: .8px solid var(--rule); }
+table.bt td { padding: 4px 8px; }
+table.bt td.num, table.bt th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tcap { font-size: 14.5px; margin: 6px 0 8px; counter-increment: tab; }
+.tcap::before { content: "Table " counter(tab) ": "; font-weight: 700; }
+/* Result statistics as a compact ruled table */
+.stats { display: grid; grid-template-columns: 1fr 1fr; margin-top: 10px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.stat { padding: 5px 8px; border-bottom: .5px solid var(--hair); display: flex; flex-direction: column; }
+.stat:nth-last-child(-n+2) { border-bottom: 0; }
+.stat b { font-weight: 400; font-family: "LM Mono", monospace; font-size: 14.5px; }
+.stat span { font-size: 13px; color: var(--ink-2); font-style: italic; }
+
+ul.items { margin: 4px 0 12px; padding-left: 22px; text-align: justify; }
+ul.items li { margin: 3px 0; }
+.code { font-size: 14px; margin: 6px 0 0; color: var(--ink-2); }
+.code a { font-family: "LM Mono", monospace; font-size: 13.5px; }
+.code a + a::before { content: " · "; color: var(--ink-2); }
+pre.verb { margin: 6px 0 12px; padding: 8px 0; border-top: .5px solid var(--hair); border-bottom: .5px solid var(--hair); white-space: pre-wrap; font-size: 13.5px; overflow-x: auto; }
+dl.desc { margin: 4px 0 12px; }
+dl.desc dt { font-weight: 700; display: inline; }
+dl.desc dt::after { content: " "; }
+dl.desc dd { display: inline; margin: 0; }
+dl.desc dd::after { content: ""; display: block; margin-bottom: 5px; }
+.figlist { font-size: 14px; columns: 3 200px; column-gap: 24px; margin: 4px 0 12px; }
+.figlist a { display: block; font-family: "LM Mono", monospace; font-size: 13.5px; }
+
+/* Event display, drawn as a schematic figure */
+#event { display: block; width: 100%; height: 250px; }
+.refs { font-size: 14.5px; padding-left: 0; list-style: none; counter-reset: ref; }
+.refs li { counter-increment: ref; display: grid; grid-template-columns: 2.4em 1fr; margin: 4px 0; }
+.refs li::before { content: "[" counter(ref) "]"; }
+footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13px; color: var(--ink-2); text-align: center; }
+
+@media (max-width: 860px) {
+  .sheet { padding: 32px 24px; margin: 0; border-left: 0; border-right: 0; }
+  .panels { grid-template-columns: 1fr; }
+  #kpis { grid-template-columns: 1fr 1fr; }
+  .kpi:nth-child(3) { border-left: 0; }
+  .kpi:nth-child(n+3) { border-top: .5px solid var(--hair); }
+}
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  nav .in { flex-wrap: wrap; height: auto; padding-top: 6px; padding-bottom: 6px; row-gap: 4px; }
+  nav .brand { margin-right: auto; }
+  nav .opts .lbl { display: none; }
+  nav .links { order: 3; flex-basis: 100%; justify-content: flex-start; }
+  section { scroll-margin-top: 84px; }
+  .sheet { padding: 24px 16px; }
+  .preprint span:last-child { display: none; }
+  .plot { height: 300px; }
+  #event { height: 210px; }
+  .stats { grid-template-columns: 1fr; }
+  .stat:nth-last-child(2) { border-bottom: .5px solid var(--hair); }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<nav>
+  <div class="in">
+    <span class="brand">Γ<sub>H</sub> from H→ZZ</span>
+    <div class="links"><a href="#A">1 Foundation</a><a href="#B">2 Width</a><a href="#C">3 Assumptions</a><a href="#D">4 EFT</a><a href="#E">5 Showers</a><a href="#evidence">6 Reproducibility</a></div>
+    <div class="opts"><span class="lbl">figures</span>
+      <span class="seg" id="view" role="group" aria-label="Figure style"><button data-v="live" class="on">Interactive</button><button data-v="root">ROOT</button></span></div>
+  </div>
+</nav>
+
+<article class="sheet">
+  <div class="preprint"><span>Educational reproduction · not an ATLAS result</span><span>October 2026</span></div>
+
+  <header class="titleblock">
+    <h1>How wide is the Higgs boson? The four tasks of an H→ZZ width project, reproduced with open data and open tools</h1>
+    <div class="author">Alejandro Guirado</div>
+    <div class="affil">Independent study · ATLAS Open Data (CC0), MCFM 7.0 (JHUGen fork), Geant4 11.4</div>
+  </header>
+
+  <div class="abstract">
+    <h4>Abstract</h4>
+    <p>This study reproduces, at small scale, the four tasks of a PhD project on the Higgs boson width with H→ZZ:
+      the on/off-shell width measurement, its stability under the assumptions behind it, an effective field theory
+      interpretation, and an electron shower-shape study in a liquid-argon calorimeter. The four-lepton selection and the
+      on-shell fit use 36.6 fb⁻¹ of 13 TeV ATLAS Open Data; the off-shell templates come from MCFM; the calorimeter study
+      uses a Geant4 application written for this purpose. Every number in this document is computed by code in the
+      <a href="REPO">accompanying repository</a>. The figures can be shown as interactive plots or as the ATLAS-style ROOT
+      figures (switch in the running head; each ROOT figure opens its PDF).</p>
+  </div>
+  <div id="kpis"></div>
+  <div class="kcap">Headline results. Limits at 95% CL.</div>
+
+  <figure class="fig" style="margin-top:22px">
+    <canvas id="event" aria-hidden="true"></canvas>
+    <figcaption class="cap">Schematic transverse view of a four-lepton candidate (illustrative). The four leptons are drawn
+      in colour (the two Z boson pairs), other charged tracks in grey; the rings stand for the detector layers.</figcaption>
+  </figure>
+
+<section id="A">
+  <h2>Rediscovering H→ZZ*→4ℓ</h2>
+  <p class="task"><span class="hd">Task 1</span> <span class="nm">(foundation for every task).</span> Select four-lepton
+    events in 36.6 fb⁻¹ of 13 TeV ATLAS Open Data, pair them into Z bosons and fit the on-shell signal strength
+    $\mu_\text{on}$, which anchors the width measurement.</p>
+  <figure class="fig">
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">Four-lepton invariant mass</div>
+        <div class="ctl live-only"><span class="seg" id="A-range"><button data-r="80,250" class="on">80–250 GeV</button><button data-r="105,160">Higgs peak</button></span></div>
+        <div id="plot-A" class="plot"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Profile likelihood for $\mu_\text{on}$</div>
+        <div class="ctl"></div>
+        <div id="plot-A2" class="plot" style="height:290px"></div>
+        <div class="stats" id="A-stats"></div>
+      </div>
+    </div>
+    <figcaption class="cap">(a) Four-lepton invariant mass after the full selection, with the Higgs signal, the ZZ* continuum
+      and the reducible backgrounds (Z+jets, tt̄, VVV) stacked. (b) Profile likelihood ratio for $\mu_\text{on}$ from a binned
+      fit in 110–140 GeV (pyhf) with normalisation, luminosity and MC-statistics nuisance parameters; the dotted lines mark
+      the 68% and 95% CL thresholds.</figcaption>
+  </figure>
+  <ul class="items">
+    <li><i>Selection:</i> trigger + matched lepton, loose/medium identification and isolation, $p_\text{T} > 20/15/10$ GeV, two
+      same-flavour opposite-sign pairs, $Z_1$ closest to $m_Z$ with $50 < m_{12} < 106$ GeV, $m_{34}$ threshold rising from 12 to
+      50 GeV, $\Delta R > 0.1$, J/ψ veto.</li>
+    <li><i>Reducible background</i> (Z+jets, tt̄) has only a handful of high-weight MC events; its shape is smoothed per sample
+      with a kernel estimate and given a 50% normalisation uncertainty.</li>
+  </ul>
+  <div class="code">Code: <a href="REPO/blob/main/src/hwidth/selection.py">selection.py</a><a href="REPO/blob/main/src/hwidth/fit_onshell.py">fit_onshell.py</a><a href="REPO/blob/main/tests/test_selection.py">tests</a></div>
+</section>
+
+<section id="B">
+  <h2>Width from the off-shell tail</h2>
+  <p class="task"><span class="hd">Task 2</span> <span class="nm">(Higgs boson width determination using H→ZZ events).</span>
+    Above $2m_Z$ the gg→H*→ZZ rate scales as $\mu_\text{off} = \mu_\text{on}\,\Gamma_H/\Gamma_H^\text{SM}$, while the on-shell
+    rate does not depend on $\Gamma_H$ [1, 2]. Comparing both constrains the width. The signal interferes destructively with
+    the gg→ZZ continuum, so the expected yield in each $m_{4\ell}$ bin is</p>
+  <div class="eq">$$n = K\left(\mu_\text{off}\, S + \sqrt{\mu_\text{off}}\, I + B_{gg}\right) + \mu_{q\bar q}\, Q + O .$$</div>
+  <figure class="fig">
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">Off-shell $m_{4\ell}$ as the width changes</div>
+        <div class="ctl live-only"><label for="R">$\Gamma_H/\Gamma_H^\text{SM}$</label>
+          <input type="range" id="R" min="0" max="30" step="0.5" value="1"><span class="readout" id="R-out"></span></div>
+        <div id="plot-B" class="plot"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Likelihood scan in $\Gamma_H/\Gamma_H^\text{SM}$</div>
+        <div class="ctl"></div>
+        <div id="plot-B2" class="plot" style="height:290px"></div>
+        <div class="stats" id="B-stats"></div>
+        <div class="sub-ph">Expected 95% CL reach versus integrated luminosity</div>
+        <div id="plot-B3" class="plot" style="height:200px"></div>
+      </div>
+    </div>
+    <figcaption class="cap">(a) Off-shell four-lepton mass spectrum compared with the expectation for the SM width and for the
+      width set with the slider. Templates: MCFM 7.0 (JHUGen fork) gg→ZZ→2e2μ at LO with $K = 1.7$, folded with a per-bin
+      efficiency calibrated on ATLAS Open Data qq→ZZ against MCFM at NLO. (b) Observed and expected (SM) profile likelihood in
+      $\Gamma_H/\Gamma_H^\text{SM}$ from the joint on/off-shell fit, and the expected limit at higher luminosity.</figcaption>
+  </figure>
+  <div class="code">Code: <a href="REPO/blob/main/src/hwidth/offshell.py">offshell.py</a><a href="REPO/tree/main/generators/mcfm">MCFM cards</a><a href="REPO/blob/main/tests/test_offshell.py">tests</a></div>
+</section>
+
+<section id="C">
+  <h2>Stability under the assumptions</h2>
+  <p class="task"><span class="hd">Task 3</span> <span class="nm">(tests of the stability of the results with respect to various
+    assumptions).</span> Each scenario changes one assumption of the baseline fit. Pseudo-data are generated with the baseline
+    model at $\Gamma_H = \Gamma_H^\text{SM}$ and HL-LHC luminosity (3000 fb⁻¹), so any shift away from 1 is the bias the
+    assumption would introduce.</p>
+  <figure class="fig">
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">Fitted width under each assumption (truth = 1)</div>
+        <div class="ctl"></div>
+        <div id="plot-C" class="plot" style="height:400px"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Couplings that differ on and off shell</div>
+        <div class="ctl"><label for="c">$c$</label><input type="range" id="c" min="0" max="4" step="1" value="2"><span class="readout" id="c-out"></span></div>
+        <div id="plot-C2" class="plot" style="height:240px"></div>
+        <div class="sub-ph">Indirect width as a function of $B_\text{BSM}$</div>
+        <div id="plot-C3" class="plot" style="height:200px"></div>
+      </div>
+    </div>
+    <figcaption class="cap">(a) Width fitted to SM pseudo-data when one assumption of the model is changed; bars show the 68% CL
+      interval. (b) If $(\kappa_g\kappa_Z)^2$ off shell is $c$ times its on-shell value (running couplings or new states in the
+      loop), a fit that assumes $c = 1$ returns $c\,\Gamma_H$. Lower panel: the indirect width from coupling fits holds only if
+      the branching ratio to invisible or undetected states, $B_\text{BSM}$, is zero.</figcaption>
+  </figure>
+  <p><i>Relaxing the on/off-shell link.</i> <span id="C-decoupled"></span></p>
+  <div class="tcap">Upper limits on $\Gamma_H/\Gamma_H^\text{SM}$ at 95% CL with 36.6 fb⁻¹, and the width fitted to HL-LHC pseudo-data, for each scenario.</div>
+  <div class="tblwrap"><table class="bt" id="C-table"></table></div>
+  <div class="code">Code: <a href="REPO/blob/main/scripts/run_moduleC.py">run_moduleC.py</a></div>
+</section>
+
+<section id="D">
+  <h2>Effective field theory interpretation</h2>
+  <p class="task"><span class="hd">Task 4</span> <span class="nm">(effective field theory interpretations).</span> Anomalous HZZ
+    couplings $a_2$ (CP-even) and $a_3$ (CP-odd) correspond to dimension-6 operators of the Higgs basis. Their amplitudes grow
+    with energy through the HZZ vertex, so the off-shell tail constrains them far better than the on-shell rate.</p>
+  <figure class="fig">
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">Off-shell signal for different $a_2$</div>
+        <div class="ctl"><span class="seg" id="D-a2"><button data-a="-0.5">a₂ = −0.5</button><button data-a="0.0" class="on">SM</button><button data-a="0.5">a₂ = +0.5</button></span></div>
+        <div id="plot-D" class="plot"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Constraints: on shell only versus on + off shell</div>
+        <div class="ctl"><span class="seg" id="D-c"><button data-c="a2" class="on">a₂</button><button data-c="a3">a₃</button></span></div>
+        <div id="plot-D2" class="plot" style="height:290px"></div>
+        <div class="stats" id="D-stats"></div>
+      </div>
+    </div>
+    <figcaption class="cap">(a) gg→H*→ZZ signal for three values of $a_2$ (MCFM with the anomalous-coupling patch). (b) Profile
+      likelihood in the selected coupling. With rates only, the on-shell measurement cannot separate a coupling change from the
+      overall gg→H strength $\mu_F$, so its curve stays at zero; the off-shell tail breaks that degeneracy. For $a_2 > 0$ a second
+      degeneracy remains: the larger signal is cancelled by the stronger destructive interference, which angular observables
+      would resolve.</figcaption>
+  </figure>
+  <div class="code">Code: <a href="REPO/blob/main/scripts/run_moduleD.py">run_moduleD.py</a><a href="REPO/blob/main/generators/mcfm/make_cards.py">EFT cards</a><a href="REPO/blob/main/generators/mcfm/patches">MCFM patch</a></div>
+</section>
+
+<section id="E">
+  <h2>Electron shower shapes in a LAr calorimeter</h2>
+  <p class="task"><span class="hd">Task 5</span> <span class="nm">(study of electron shower shape development; authorship
+    qualification).</span> A Geant4 application in C++ [5] models an ATLAS-like barrel: presampler, fine-η strips, middle and
+    back Pb/LAr layers with ATLAS cell sizes, plus an Fe/scintillator hadronic section. 32 000 showers of e⁻, γ, π⁰ and π⁻
+    were simulated at 10–100 GeV.</p>
+  <figure class="fig">
+    <div class="panels">
+      <div class="panel">
+        <div class="ph">Shower-shape distributions at 50 GeV</div>
+        <div class="ctl"><select id="E-var" aria-label="Shower-shape variable"></select><span class="seg live-only" id="E-part"></span></div>
+        <div id="plot-E" class="plot"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Material in front of the calorimeter</div>
+        <div class="ctl"><select id="E-mvar" aria-label="Quantity"><option value="R_eta">R_η</option><option value="f1">f₁</option><option value="w_eta2">w_η2</option><option value="E_mean_GeV">reconstructed E [GeV]</option><option value="f_ps">presampler fraction</option></select></div>
+        <div id="plot-E2" class="plot"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Particle identification power at 25 GeV</div>
+        <div class="ctl"><span class="seg" id="E-roc"><button data-k="gamma_vs_pi0" class="on">γ vs π⁰ (strips)</button><button data-k="e-_vs_pi-">e⁻ vs π⁻</button></span></div>
+        <div id="plot-E3" class="plot" style="height:310px"></div>
+      </div>
+      <div class="panel">
+        <div class="ph">Longitudinal profile and resolution</div>
+        <div class="ctl"></div>
+        <div id="plot-E4" class="plot" style="height:230px"></div>
+        <div class="stats" id="E-stats"></div>
+      </div>
+    </div>
+    <figcaption class="cap">(a) Normalised distributions of the ATLAS shower-shape variables for the selected particles.
+      (b) Shower shapes and reconstructed energy of 50 GeV electrons and photons versus the material upstream of the
+      calorimeter, the main source of data/MC differences in shower shapes. (c) Background rejection versus signal efficiency
+      for single-variable cuts. (d) Mean longitudinal energy profile, in radiation lengths, and the fitted energy resolution.</figcaption>
+  </figure>
+  <div class="code">Code: <a href="REPO/tree/main/g4calo">g4calo (C++)</a><a href="REPO/blob/main/src/hwidth/showers.py">showers.py</a><a href="REPO/blob/main/tests/test_showers.py">tests</a></div>
+</section>
+
+<section id="evidence">
+  <h2>Reproducibility</h2>
+  <dl class="desc">
+    <dt>Data.</dt><dd>ATLAS Open Data 13 TeV, 2025 education release, <code>exactly4lep</code> skim (36.6 fb⁻¹) [6].</dd>
+    <dt>Generators.</dt><dd>MCFM 7.0 (JHUGen fork) [4] for gg→ZZ signal, interference, continuum and anomalous couplings; MCFM NLO
+      qq→ZZ. Built with gfortran 16 on Apple silicon (two legacy array declarations and a run-time coupling reader patched).</dd>
+    <dt>Simulation.</dt><dd>Geant4 11.4.3 [5], C++17, FTFP_BERT.</dd>
+    <dt>Analysis.</dt><dd>Python, uproot, awkward, pyhf, iminuit, scipy, pytest; figures with ROOT 6.40 (PyROOT).</dd>
+  </dl>
+  <p class="small" style="margin-bottom:2px"><i>Commands, in order:</i></p>
+  <pre class="verb">python scripts/download.py        # ~1 GB of skims
+python scripts/run_moduleA.py --reprocess
+generators/mcfm/run_mcfm.sh; generators/mcfm/run_eft.sh
+python scripts/run_moduleB.py; python scripts/run_moduleC.py; python scripts/run_moduleD.py
+g4calo/run_production.sh 1000; python scripts/run_moduleE.py
+python scripts/plots_root.py      # ROOT figures
+pytest</pre>
+  <p class="small" style="margin-bottom:2px"><i>ROOT figures (PDF):</i></p>
+  <div class="figlist" id="figlist"></div>
+  <p><i>Limits of this study.</i> Education-level open data (36.6 fb⁻¹, two years), $m_{4\ell}$ only (no matrix-element
+    discriminant), LO gg templates with a flat K-factor, no VBF off-shell component, a planar toy calorimeter. The results are an
+    educational reproduction, not ATLAS results.</p>
+
+  <h3 style="font-size:17px;margin:22px 0 4px">References</h3>
+  <ol class="refs">
+    <li>F. Caola and K. Melnikov, Constraining the Higgs boson width with ZZ production at the LHC, Phys. Rev. D 88 (2013) 054024, arXiv:1307.4935.</li>
+    <li>N. Kauer and G. Passarino, Inadequacy of zero-width approximation for a light Higgs boson signal, JHEP 08 (2012) 116, arXiv:1206.4803.</li>
+    <li>ATLAS Collaboration, Evidence of off-shell Higgs boson production from ZZ leptonic decay channels and constraints on its total width with the ATLAS detector, Phys. Lett. B 846 (2023) 138223.</li>
+    <li>J. M. Campbell, R. K. Ellis and C. Williams, MCFM, Monte Carlo for FeMtobarn processes, <a href="https://mcfm.fnal.gov">mcfm.fnal.gov</a>.</li>
+    <li>S. Agostinelli et al. (Geant4), Geant4 — a simulation toolkit, Nucl. Instrum. Meth. A 506 (2003) 250.</li>
+    <li>ATLAS Collaboration, ATLAS Open Data, <a href="https://opendata.atlas.cern">opendata.atlas.cern</a>.</li>
+  </ol>
+</section>
+</article>
+
+<footer>Data: ATLAS Open Data (CC0). This document is not affiliated with the ATLAS Collaboration or DESY. Typeset in Latin Modern.</footer>
+
+<script>
+const REPO = "https://github.com/AlejandroGuiradoMexa/higgs-width-opendata";
+document.querySelectorAll('a[href^="REPO"]').forEach(a => a.href = a.getAttribute("href").replace("REPO", REPO));
+
+// LaTeX in the text ($…$ and $$…$$), rendered by KaTeX once it has loaded.
+addEventListener("load", () => { if (window.renderMathInElement) renderMathInElement(document.body, {
+  delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false }], throwOnError: false }); });
+
+const root = document.documentElement;
+const css = v => getComputedStyle(root).getPropertyValue(v).trim();
+const fmt = (x, d = 2) => (x === null || x === undefined || isNaN(x)) ? "–" : Number(x).toFixed(d);
+// Plot style of a printed figure: closed frame, inward ticks on all sides, no grid, serif type.
+function axis(extra = {}) {
+  return Object.assign({ showline: true, mirror: "ticks", linecolor: css("--ink"), linewidth: 1, ticks: "inside", ticklen: 6,
+    tickcolor: css("--ink"), showgrid: false, zeroline: false, minor: { ticks: "inside", ticklen: 3, tickcolor: css("--ink") } }, extra);
+}
+function layout(extra = {}) {
+  const l = Object.assign({
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: '"LM Roman", "Latin Modern Roman", Georgia, serif', color: css("--ink"), size: 13 },
+    margin: { l: 58, r: 12, t: 8, b: 46 },
+    legend: { x: 0.98, xanchor: "right", y: 0.98, yanchor: "top", bgcolor: css("--sheet"), bordercolor: css("--ink"), borderwidth: .6, font: { size: 12 } },
+  }, extra);
+  l.legend = Object.assign({ x: 0.98, xanchor: "right", y: 0.98, yanchor: "top", bgcolor: css("--sheet"), bordercolor: css("--ink"), borderwidth: .6, font: { size: 12 } }, extra.legend);
+  // Log axes: label the decades only, as in a printed figure.
+  const ax = e => axis(Object.assign(e && e.type === "log" ? { dtick: 1 } : {}, e));
+  l.xaxis = ax(extra.xaxis); l.yaxis = ax(extra.yaxis);
+  return l;
+}
+const cfg = { displayModeBar: false, responsive: true };
+const centres = e => e.slice(0, -1).map((x, i) => (x + e[i + 1]) / 2);
+const lim = x => x >= 24.99 ? "> 25" : `< ${fmt(x, 1)}`;
+const typeset = t => t.replace(/->/g, "→").replace(/Lambda/g, "Λ").replace(/sqrt\(K_S K_B\)/g, "√(K<sub>S</sub>K<sub>B</sub>)")
+  .replace(/\bK_I\b/g, "K<sub>I</sub>").replace(/\bqq\b/g, "qq̄");
+const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+const dotted = (x0, x1, y) => ({ type: "line", x0, x1, y0: y, y1: y, line: { dash: "dot", color: css("--ink-2"), width: 1 } });
+
+// Interactive (Plotly) or static ROOT figures. Each plot with a ROOT version gets a <figure> next to it;
+// the function returns the figure name for the current controls, or null to keep the interactive plot.
+const sel1 = q => document.querySelector(q);
+const ROOTFIG = {
+  "plot-A": () => "moduleA_m4l", "plot-A2": () => "moduleA_scan",
+  "plot-B": () => "moduleB_offshell", "plot-B2": () => "moduleB_scan",
+  "plot-C": () => "moduleC_assumptions",
+  "plot-D2": () => "moduleD_eft_" + sel1("#D-c .on").dataset.c,
+  "plot-E": () => { const v = sel1("#E-var").value; return ["R_eta", "w_eta2", "ws_tot", "E_ratio", "R_had", "E_over_p"].includes(v) ? "moduleE_" + v : null; },
+  "plot-E3": () => ({ gamma_vs_pi0: "moduleE_roc_gamma_vs_pi0", "e-_vs_pi-": "moduleE_roc_em_vs_pim" })[sel1("#E-roc .on").dataset.k],
+  "plot-E4": () => "moduleE_profile",
+};
+const FIGS = ["moduleA_m4l", "moduleA_m4l_offshell", "moduleA_scan", "moduleB_offshell", "moduleB_scan", "moduleC_assumptions",
+  "moduleD_eft_a2", "moduleD_eft_a3", "moduleE_R_eta", "moduleE_w_eta2", "moduleE_ws_tot", "moduleE_E_ratio", "moduleE_R_had",
+  "moduleE_E_over_p", "moduleE_profile", "moduleE_roc_gamma_vs_pi0", "moduleE_roc_em_vs_pim"];
+document.getElementById("figlist").innerHTML = FIGS.map(f => `<a href="root/${f}.pdf" target="_blank" rel="noopener">${f}.pdf</a>`).join("");
+Object.keys(ROOTFIG).forEach(id => {
+  const fig = document.createElement("figure"); fig.className = "rootfig"; fig.id = id + "-root";
+  fig.innerHTML = `<a target="_blank" rel="noopener"><img alt="ROOT figure"></a><figcaption>ROOT version, vector; click to open the PDF.</figcaption>`;
+  document.getElementById(id).after(fig);
+});
+let rootMode = false;
+function updateFigures() {
+  Object.entries(ROOTFIG).forEach(([id, f]) => {
+    const name = rootMode ? f() : null, plot = document.getElementById(id), fig = document.getElementById(id + "-root");
+    plot.classList.toggle("has-root", !!name); fig.classList.toggle("has", !!name);
+    if (name) { const img = fig.querySelector("img"); if (!img.src.endsWith(name + ".svg")) { img.src = `root/${name}.svg`; img.alt = name; fig.querySelector("a").href = `root/${name}.pdf`; } }
+  });
+  if (!rootMode && window.Plotly) document.querySelectorAll(".plot").forEach(p => { if (p.data) Plotly.Plots.resize(p); });
+}
+function setView(v) {
+  rootMode = v === "root"; document.body.classList.toggle("root-mode", rootMode);
+  document.querySelectorAll("#view button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  try { localStorage.setItem("view", v); } catch (e) {}
+  updateFigures();
+}
+document.querySelectorAll("#view button").forEach(b => b.onclick = () => setView(b.dataset.v));
+// Controls that choose the figure (a2/a3, variable, ROC pair) also switch the ROOT image.
+document.addEventListener("click", e => { if (rootMode && e.target.closest(".ctl")) requestAnimationFrame(updateFigures); });
+document.addEventListener("change", () => { if (rootMode) updateFigures(); });
+
+// Figure 0: a stylised four-lepton event in a transverse view, centred in its frame.
+(function eventDisplay() {
+  const cv = document.getElementById("event"), ctx = cv.getContext("2d");
+  let tracks = [], t0 = performance.now();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function newEvent() {
+    tracks = [];
+    const n = 4 + Math.floor(Math.random() * 14);
+    for (let i = 0; i < n; i++) {
+      const lepton = i < 4;
+      tracks.push({ phi: Math.random() * 2 * Math.PI, curv: (Math.random() - .5) * (lepton ? .0006 : .004),
+                    len: lepton ? 1 : .35 + Math.random() * .4, lepton, col: lepton ? (i < 2 ? "--c-h" : "--c-zz") : "--ink-2" });
+    }
+    t0 = performance.now();
+  }
+  function draw(now) {
+    const dpr = devicePixelRatio || 1, w = cv.width = cv.clientWidth * dpr, h = cv.height = cv.clientHeight * dpr;
+    ctx.clearRect(0, 0, w, h);
+    const cx = w * .5, cy = h * .5, R = h * .46, p = reduce ? 1 : Math.min(1, (now - t0) / 1400);
+    ctx.lineWidth = .8 * dpr; ctx.strokeStyle = css("--ink");
+    [0.3, 0.55, 0.78, 1].forEach(r => { ctx.beginPath(); ctx.arc(cx, cy, R * r, 0, 2 * Math.PI); ctx.stroke(); });
+    ctx.setLineDash([2 * dpr, 3 * dpr]); ctx.strokeStyle = css("--ink-2");
+    ctx.beginPath(); ctx.moveTo(cx - R * 1.08, cy); ctx.lineTo(cx + R * 1.08, cy); ctx.moveTo(cx, cy - R * 1.08); ctx.lineTo(cx, cy + R * 1.08); ctx.stroke();
+    ctx.setLineDash([]);
+    tracks.forEach(tr => {
+      ctx.strokeStyle = css(tr.col); ctx.globalAlpha = tr.lepton ? 1 : .55; ctx.lineWidth = (tr.lepton ? 2 : .9) * dpr;
+      ctx.beginPath(); let x = cx, y = cy, phi = tr.phi; ctx.moveTo(x, y);
+      const steps = 120 * tr.len * p;
+      for (let s = 0; s < steps; s++) { phi += tr.curv * 60; x += Math.cos(phi) * R / 120; y += Math.sin(phi) * R / 120; ctx.lineTo(x, y); }
+      ctx.stroke();
+      if (tr.lepton && p === 1) { ctx.fillStyle = css(tr.col); ctx.fillRect(x - 3 * dpr, y - 3 * dpr, 6 * dpr, 6 * dpr); }
+    });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = css("--ink-2"); ctx.font = `italic ${12 * dpr}px "LM Roman", serif`;
+    ctx.fillText("x", cx + R * 1.1, cy - 4 * dpr); ctx.fillText("y", cx + 5 * dpr, cy - R * 1.04);
+    if (!reduce) { if (now - t0 > 4200) newEvent(); requestAnimationFrame(draw); }
+  }
+  newEvent(); requestAnimationFrame(draw);
+})();
+
+// Running head: highlight the section in view.
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) document.querySelectorAll("nav .links a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+}), { rootMargin: "-40% 0px -55% 0px" });
+document.querySelectorAll("section").forEach(s => io.observe(s));
+
+function seg(id, cb) {
+  const el = document.getElementById(id);
+  el.querySelectorAll("button").forEach(b => b.onclick = () => {
+    el.querySelectorAll("button").forEach(x => x.classList.remove("on")); b.classList.add("on"); cb(b.dataset);
+  });
+}
+
+fetch("data.json").then(r => r.json()).then(D => {
+  const draws = [];
+  window.redraw = () => draws.forEach(f => f());
+
+  // Headline results
+  const k = [];
+  if (D.A) k.push([`${fmt(D.A.fit.mu_hat)}<small><sup>+${fmt(D.A.fit.mu_hi - D.A.fit.mu_hat)}</sup><sub>−${fmt(D.A.fit.mu_hat - D.A.fit.mu_lo)}</sub></small>`, "on-shell μ, H→4ℓ"]);
+  if (D.A) k.push([`${fmt(D.A.fit.Z_obs, 1)}σ`, "observed significance"]);
+  if (D.B) k.push([`< ${fmt(D.B.observed.width_95_mev, 0)} MeV`, "Γ<sub>H</sub>, 36.6 fb⁻¹"]);
+  if (D.E) k.push([`${fmt(100 * D.E.resolution["e-"].stochastic, 1)}%/√E`, "e⁻ resolution, Geant4"]);
+  document.getElementById("kpis").innerHTML = k.map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`).join("");
+
+  // ---- A
+  if (D.A) {
+    let range = [80, 250];
+    const h = D.A.hist, x = centres(h.edges);
+    const drawA = () => {
+      const tr = [["other", "Z+jets, tt̄, VVV", "--c-oth"], ["zz", "ZZ*", "--c-zz"], ["higgs", "H→ZZ* (125 GeV)", "--c-h"]]
+        .map(([key, name, c]) => ({ type: "bar", x, y: h[key], name, marker: { color: css(c) } }));
+      tr.push({ type: "scatter", mode: "markers", x, y: h.data, name: "Data", marker: { color: css("--ink"), size: 5 },
+                error_y: { type: "data", array: h.data.map(Math.sqrt), color: css("--ink"), thickness: 1, width: 0 } });
+      Plotly.react("plot-A", tr, layout({ barmode: "stack", bargap: 0, legend: { traceorder: "reversed" },
+        xaxis: { title: "m<sub>4ℓ</sub> [GeV]", range }, yaxis: { title: "Events / 2.5 GeV" } }), cfg);
+      Plotly.react("plot-A2", [{ x: D.A.fit.scan_mu, y: D.A.fit.scan_2dnll, mode: "lines", line: { color: css("--ink"), width: 2 }, name: "observed" }],
+        layout({ showlegend: false, xaxis: { title: "μ<sub>on</sub>", range: [0, 2.2] }, yaxis: { title: "−2 Δln L", range: [0, 6] },
+          shapes: [1, 3.84].map(y => dotted(0, 2.2, y)) }), cfg);
+    };
+    seg("A-range", d => { range = d.r.split(",").map(Number); drawA(); });
+    draws.push(drawA); drawA();
+    const y = D.A.yields;
+    document.getElementById("A-stats").innerHTML =
+      stat(`${fmt(D.A.fit.mu_hat)} [${fmt(D.A.fit.mu_lo)}, ${fmt(D.A.fit.mu_hi)}]`, "μ<sub>on</sub>, 68% CL") +
+      stat(`${fmt(D.A.fit.Z_obs, 1)}σ / ${fmt(D.A.fit.Z_exp, 1)}σ`, "significance, obs. / exp.") +
+      stat(`${y.data} vs ${fmt(y.higgs + y.zz + y.other, 1)}`, "events in 115–130 GeV, data vs MC") + stat(`${fmt(D.A.lumi, 1)} fb⁻¹`, "integrated luminosity");
+  }
+
+  // ---- B
+  if (D.B) {
+    const B = D.B, x = centres(B.edges), w = B.edges.slice(1).map((e, i) => e - B.edges[i]);
+    const T = B.templates, K = B.K_gg, bf = B.best_fit;
+    const expect = R => x.map((_, i) => { const mu = bf.mu_on * R;
+      return (K * (mu * T.S[i] + Math.sqrt(mu) * T.I[i] + T.B[i]) + bf.mu_qq * T.Q[i] + T.O[i]) / w[i]; });
+    const slider = document.getElementById("R"), out = document.getElementById("R-out");
+    const drawB = () => {
+      const R = +slider.value; out.innerHTML = `${R.toFixed(1)} → Γ<sub>H</sub> ≈ ${(R * B.gamma_sm_mev).toFixed(1)} MeV`;
+      Plotly.react("plot-B", [
+        { x, y: expect(1), mode: "lines", line: { shape: "hvh", color: css("--ink-2"), dash: "dot", width: 1.5 }, name: "SM" },
+        { x, y: expect(R), mode: "lines", line: { shape: "hvh", color: css("--c-h"), width: 2.5 }, name: `Γ = ${R}·Γ<sub>SM</sub>` },
+        { x, y: B.data.map((d, i) => d / w[i]), mode: "markers", name: "Data", marker: { color: css("--ink"), size: 5 },
+          error_y: { type: "data", array: B.data.map((d, i) => Math.sqrt(d) / w[i]), color: css("--ink"), thickness: 1, width: 0 } }],
+        layout({ xaxis: { title: "m<sub>4ℓ</sub> [GeV]" }, yaxis: { title: "Events / GeV", type: "log" } }), cfg);
+      Plotly.react("plot-B2", [
+        { x: B.R_grid, y: B.observed.scan, mode: "lines", name: "Observed", line: { color: css("--ink"), width: 2 } },
+        { x: B.R_grid, y: B.expected.scan, mode: "lines", name: "Expected (SM)", line: { color: css("--ink"), width: 1.5, dash: "dash" } }],
+        layout({ legend: { x: 0.02, xanchor: "left" }, xaxis: { title: "Γ<sub>H</sub> / Γ<sub>H</sub><sup>SM</sup>" }, yaxis: { title: "−2 Δln L", range: [0, 8] },
+          shapes: [1, 3.84].map(y => dotted(0, 25, y)) }), cfg);
+      const P = B.projection_95CL_R, L = Object.keys(P);
+      Plotly.react("plot-B3", [{ type: "bar", x: L.map(l => `${l} fb⁻¹`), y: L.map(l => P[l]), marker: { color: L.map((_, i) => i === 0 ? css("--c-h") : css("--c-oth")), line: { color: css("--ink"), width: .6 } },
+        text: L.map(l => `${P[l].toFixed(1)}`), textposition: "outside", cliponaxis: false }],
+        layout({ showlegend: false, margin: { l: 58, r: 10, t: 8, b: 30 }, xaxis: { minor: { ticks: "" } }, yaxis: { title: "Γ/Γ<sub>SM</sub> limit", range: [0, 16] } }), cfg);
+    };
+    slider.oninput = drawB; draws.push(drawB); drawB();
+    document.getElementById("B-stats").innerHTML =
+      stat(`< ${fmt(B.observed.int95[1], 1)}`, "Γ/Γ<sub>SM</sub>, observed 95% CL") + stat(`< ${fmt(B.expected.int95[1], 1)}`, "expected 95% CL") +
+      stat(`${fmt(bf.mu_qq)}`, "fitted qq→ZZ normalisation") + stat(`${B.yields.data}`, "events, 230–1010 GeV");
+  }
+
+  // ---- C
+  if (D.C) {
+    const C = D.C, S = C.scenarios.slice().reverse();
+    const short = { baseline: "Baseline", K_low: "K<sub>gg</sub> = 1.4", K_high: "K<sub>gg</sub> = 2.0", K_bkg_30: "K<sub>B</sub> ± 30%",
+      qq_fixed: "qq→ZZ fixed ± 10%", ff_1000: "form factor, Λ = 1 TeV", ff_500: "form factor, Λ = 500 GeV" };
+    const colors = { none: "--ink", k: "--c-h", bkg: "--c-oth", bsm: "--c-zz" };
+    const drawC = () => {
+      Plotly.react("plot-C", [
+        { type: "scatter", mode: "markers", x: S.map(s => s.hl_best), y: S.map(s => short[s.key] || s.label), customdata: S.map(s => s.label),
+          marker: { size: 9, symbol: "square", color: S.map(s => css(colors[s.group])), line: { color: css("--ink"), width: .8 } },
+          error_x: { type: "data", symmetric: false, array: S.map(s => s.hl68[1] - s.hl_best), arrayminus: S.map(s => s.hl_best - s.hl68[0]), thickness: 1.2, width: 4, color: css("--ink") },
+          hovertemplate: "%{customdata}<br>fitted %{x:.2f}<extra></extra>" }],
+        layout({ showlegend: false, margin: { l: 10, r: 12, t: 8, b: 46 }, xaxis: { title: "Fitted Γ/Γ<sub>SM</sub> (68% CL), 3000 fb⁻¹", range: [0, 6.5] },
+          yaxis: { automargin: true, ticks: "", minor: { ticks: "" } },
+          shapes: [{ type: "line", x0: 1, x1: 1, y0: -0.5, y1: S.length - .5, line: { dash: "dash", color: css("--ink"), width: 1 } }] }), cfg);
+      const c = +document.getElementById("c").value, cb = C.coupling_bias[c];
+      document.getElementById("c-out").innerHTML = `c = ${cb.c} → fitted Γ/Γ<sub>SM</sub> = ${cb.R_fitted.toFixed(2)}`;
+      Plotly.react("plot-C2", [{ x: C.coupling_bias.map(b => b.c), y: C.coupling_bias.map(b => b.R_fitted), mode: "lines+markers", line: { color: css("--ink"), width: 1.5 }, marker: { size: 6, color: css("--ink") } },
+        { x: [cb.c], y: [cb.R_fitted], mode: "markers", marker: { size: 12, symbol: "square", color: css("--c-zz"), line: { color: css("--ink"), width: 1 } } }],
+        layout({ showlegend: false, xaxis: { title: "c = (κ<sub>g</sub>κ<sub>Z</sub>)²<sub>off</sub> / (κ<sub>g</sub>κ<sub>Z</sub>)²<sub>on</sub>" }, yaxis: { title: "fitted Γ/Γ<sub>SM</sub>" } }), cfg);
+      const I = C.indirect;
+      Plotly.react("plot-C3", [{ x: I.B_BSM, y: I.R_indirect, mode: "lines", line: { color: css("--c-zz"), width: 2.5 } }],
+        layout({ showlegend: false, margin: { l: 58, r: 10, t: 8, b: 40 }, xaxis: { title: "B<sub>BSM</sub> (invisible + undetected)" },
+          yaxis: { title: "Γ/Γ<sub>SM</sub>", type: "log" } }), cfg);
+    };
+    document.getElementById("c").oninput = drawC; draws.push(drawC); drawC();
+    const dd = C.decoupled;
+    document.getElementById("C-decoupled").innerHTML = `If μ<sub>off</sub> is fitted freely instead of tied to μ<sub>on</sub>, the data only give μ<sub>off</sub> &lt; ${fmt(dd.mu_off_95[1], 1)} (95% CL): the width is then no longer determined, which is why this link is the assumption most worth testing.`;
+    document.getElementById("C-table").innerHTML = "<tr><th>Scenario</th><th class='num'>Obs. 95% CL</th><th class='num'>Exp. 95% CL</th><th class='num'>Fitted, HL-LHC</th></tr>" +
+      C.scenarios.map(s => `<tr><td>${typeset(s.label)}</td><td class="num">${lim(s.obs95)}</td><td class="num">${lim(s.exp95)}</td><td class="num">${fmt(s.hl_best, 2)}</td></tr>`).join("");
+  }
+
+  // ---- D
+  if (D.D) {
+    const DD = D.D, x = centres(DD.edges), w = DD.edges.slice(1).map((e, i) => e - DD.edges[i]);
+    let a = "0.0", cpl = "a2";
+    const drawD = () => {
+      const tr = ["-0.5", "0.0", "0.5"].map(k => ({ x, y: DD.shapes_a2[k].map((v, i) => v / w[i]), mode: "lines", line: { shape: "hvh", width: k === a ? 2.8 : 1.2,
+        color: k === "0.0" ? css("--ink") : (k === "0.5" ? css("--c-h") : css("--c-zz")), dash: k === "0.0" ? "solid" : (k === "0.5" ? "solid" : "dash") },
+        opacity: k === a ? 1 : .55, name: k === "0.0" ? "SM" : `a<sub>2</sub> = ${k}` }));
+      Plotly.react("plot-D", tr, layout({ xaxis: { title: "m<sub>4ℓ</sub> [GeV]" }, yaxis: { title: "signal events / GeV", type: "log" } }), cfg);
+      const c = DD.couplings[cpl];
+      Plotly.react("plot-D2", [["obs_comb", "On + off shell (obs.)", "--ink", "solid"], ["exp_comb", "On + off shell (exp.)", "--ink", "dash"],
+        ["obs_on", "On shell only (obs.)", "--c-zz", "solid"], ["exp_on", "On shell only (exp.)", "--c-zz", "dot"]]
+        .map(([key, name, col, dash]) => ({ x: DD.grid, y: c[key].scan, name, mode: "lines", line: { color: css(col), dash, width: 2 } })),
+        layout({ xaxis: { title: cpl === "a2" ? "a<sub>2</sub> (CP-even)" : "a<sub>3</sub> (CP-odd)" }, yaxis: { title: "−2 Δln L", range: [0, 10] },
+          legend: { x: 0.5, xanchor: "center" },
+          shapes: [dotted(DD.grid[0], DD.grid[DD.grid.length - 1], 3.84)] }), cfg);
+      const lo = DD.grid[0], hi = DD.grid[DD.grid.length - 1], sym = cpl === "a2" ? "a₂" : "a₃";
+      const iv = v => { if (!v || v[0] === null) return "–";
+        const a = v[0] <= lo + 1e-6, b = v[1] >= hi - 1e-6;
+        if (a && b) return "no constraint"; if (b) return `${sym} > ${fmt(v[0])}`; if (a) return `${sym} < ${fmt(v[1])}`;
+        return `[${fmt(v[0])}, ${fmt(v[1])}]`; };
+      document.getElementById("D-stats").innerHTML = stat(iv(c.obs_on.int95), "95% CL, on shell only") + stat(iv(c.obs_comb.int95), "95% CL, on + off shell") +
+        stat(iv(c.exp_comb.int95), "expected, on + off shell") + stat(`[${fmt(lo, 0)}, ${fmt(hi, 0)}]`, "scan range");
+    };
+    seg("D-a2", d => { a = d.a; drawD(); }); seg("D-c", d => { cpl = d.c; drawD(); });
+    draws.push(drawD); drawD();
+  }
+
+  // ---- E
+  if (D.E) {
+    const E = D.E, dist = E.distributions_50GeV;
+    const names = { R_eta: "R<sub>η</sub>", R_phi: "R<sub>φ</sub>", w_eta2: "w<sub>η2</sub>", ws_tot: "w<sub>s,tot</sub> [strips]", E_ratio: "E<sub>ratio</sub>", f1: "f<sub>1</sub>", R_had: "R<sub>had</sub> (visible)", E_over_p: "E/p" };
+    const plain = { R_eta: "R_η", R_phi: "R_φ", w_eta2: "w_η2", ws_tot: "w_s,tot", E_ratio: "E_ratio", f1: "f₁", R_had: "R_had", E_over_p: "E/p" };
+    const pcol = { "e-": "--c-h", gamma: "--c-amb", pi0: "--c-zz", "pi-": "--c-oth" };
+    const plab = { "e-": "e<sup>−</sup>", gamma: "γ", pi0: "π<sup>0</sup>", "pi-": "π<sup>−</sup>" };
+    const pbtn = { "e-": "e⁻", gamma: "γ", pi0: "π⁰", "pi-": "π⁻" };
+    const sel = document.getElementById("E-var");
+    sel.innerHTML = Object.keys(dist).map(v => `<option value="${v}">${plain[v] || v}</option>`).join("");
+    const shown = new Set(["e-", "gamma", "pi0", "pi-"]);
+    document.getElementById("E-part").innerHTML = Object.keys(plab).map(p => `<button data-p="${p}" class="on">${pbtn[p]}</button>`).join("");
+    document.querySelectorAll("#E-part button").forEach(b => b.onclick = () => { b.classList.toggle("on"); shown.has(b.dataset.p) ? shown.delete(b.dataset.p) : shown.add(b.dataset.p); drawE(); });
+    let rocKey = "gamma_vs_pi0";
+    const drawE = () => {
+      const v = sel.value, d = dist[v];
+      Plotly.react("plot-E", Object.keys(d).filter(p => shown.has(p)).map(p => ({ x: centres(d[p].edges), y: d[p].density, name: plab[p], mode: "lines",
+        line: { shape: "hvh", color: css(pcol[p]), width: 2 } })), layout({ xaxis: { title: names[v] || v }, yaxis: { title: "normalised", showticklabels: false } }), cfg);
+      const mv = document.getElementById("E-mvar").value;
+      Plotly.react("plot-E2", ["e-", "gamma"].map(p => { const rows = E.material[p], xs = Object.keys(rows).map(Number).sort((a, b) => a - b);
+        return { x: xs, y: xs.map(x0 => rows[x0.toFixed(1)][mv]), name: plab[p], mode: "lines+markers", line: { color: css(pcol[p]), width: 2 }, marker: { size: 6, symbol: p === "e-" ? "circle" : "square" } }; }),
+        layout({ xaxis: { title: "Upstream material [X<sub>0</sub>]" }, yaxis: { title: names[mv] || ({ E_mean_GeV: "reconstructed E [GeV]", f_ps: "presampler fraction" })[mv] } }), cfg);
+      const R = E.roc[rocKey] || {};
+      Plotly.react("plot-E3", Object.keys(R).map((v2, i) => ({ x: R[v2].eff_sig, y: R[v2].eff_bkg.map(b => 1 / Math.max(b, 1e-3)), name: names[v2] || v2, mode: "lines",
+        line: { width: 2, color: css(["--c-h", "--c-zz", "--c-oth", "--c-amb"][i % 4]) } })),
+        layout({ xaxis: { title: "signal efficiency", range: [0.5, 1] }, yaxis: { title: "background rejection", type: "log" } }), cfg);
+      Plotly.react("plot-E4", ["e-", "gamma", "pi-"].filter(p => E.profile[p]).map(p => ({ x: E.profile[p].t, y: E.profile[p].dEdt, name: plab[p], mode: "lines",
+        line: { shape: "hvh", color: css(pcol[p]), width: 2 } })), layout({ margin: { l: 58, r: 10, t: 8, b: 40 }, xaxis: { title: "depth [X<sub>0</sub>]", range: [0, 26] },
+          yaxis: { title: "fraction / X<sub>0</sub>" } }), cfg);
+    };
+    sel.onchange = drawE; document.getElementById("E-mvar").onchange = drawE;
+    seg("E-roc", d => { rocKey = d.k; drawE(); });
+    draws.push(drawE); drawE();
+    const r = E.resolution;
+    document.getElementById("E-stats").innerHTML = stat(`${fmt(100 * r["e-"].stochastic, 1)}%/√E`, "e⁻ stochastic term") +
+      stat(`${fmt(E.profile["e-"].t_max, 1)} X₀`, "e⁻ shower maximum, 50 GeV") + stat(`${fmt(E.sampling_fraction, 3)}`, "sampling fraction") +
+      stat("32 000", "simulated showers");
+  }
+  // Plotly measures text when it draws; redraw once Latin Modern has loaded.
+  if (document.fonts) document.fonts.ready.then(() => window.redraw());
+  // ?view=root in the URL, or the viewer's last choice
+  let v0 = new URLSearchParams(location.search).get("view");
+  try { v0 = v0 || localStorage.getItem("view"); } catch (e) {}
+  if (v0 === "root") setView("root");
+}).catch(err => { document.getElementById("kpis").innerHTML = `<div class="kpi"><b>–</b><span>Could not load data.json (${err.message}). Serve the folder over HTTP.</span></div>`; });
+</script>
+</body>
+</html>
