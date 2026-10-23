@@ -52,6 +52,7 @@ python3 generators/mcfm/make_cards.py --eft && generators/mcfm/run_eft.sh
 # ROOT figures (ATLAS style) in results/figures/; PyROOT needs the Python version ROOT was built with
 $(root-config --python-version | cut -d. -f1,2 | sed 's/^/python/') -m venv .venv-root && .venv-root/bin/pip install numpy iminuit && .venv-root/bin/pip install --no-deps -e .
 PYTHONPATH=$(root-config --libdir) .venv-root/bin/python scripts/plots_root.py
+g4calo/vis/make_views.sh                              # 3D event views (Geant4 VRML) for the page
 .venv/bin/python scripts/build_site.py && (cd site && python3 -m http.server)
 .venv/bin/pytest
 ```

@@ -9,6 +9,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="geant4.js"></script>
 <style>
 /* Latin Modern (GUST Font License), the OpenType version of Knuth's Computer Modern */
 @font-face { font-family: "LM Roman"; src: url(fonts/lmroman10-regular.otf) format("opentype"); font-weight: 400; font-style: normal; font-display: swap; }
@@ -137,6 +139,28 @@ dl.desc dd { display: inline; margin: 0; }
 dl.desc dd::after { content: ""; display: block; margin-bottom: 5px; }
 .figlist { font-size: 14px; columns: 3 200px; column-gap: 24px; margin: 4px 0 12px; }
 .figlist a { display: block; font-family: "LM Mono", monospace; font-size: 13.5px; }
+
+
+/* Geant4 detector schematic and event display (geant4.js) */
+.g4det { overflow-x: auto; }
+.g4det svg { display: block; width: 100%; min-width: 720px; height: auto; }
+@media (max-width: 760px) { .g4det::before { content: "scroll sideways for the full detector →"; display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 4px; } }
+.g4ev-ctl { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 4px 0 10px; }
+.g4ev-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 860px) { .g4ev-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .g4ev-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.g4ev-map { margin: 0; min-width: 0; }
+.g4ev-map svg { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.g4ev-map figcaption { font-size: 12.5px; margin-top: 4px; line-height: 1.3; }
+.g4ev-map figcaption b { display: block; font-weight: 600; }
+.g4ev-map figcaption span { color: var(--ink-2); }
+.g4ev-foot { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12.5px; color: var(--ink-2); margin-top: 10px; }
+.g4v3-stage { position: relative; width: 100%; height: 470px; border: 1px solid var(--hair); background: var(--sheet); display: flex; align-items: center; justify-content: center; touch-action: none; }
+.g4v3-stage canvas { display: block; width: 100%; height: 100%; }
+.g4v3-start { font: inherit; font-size: 14px; padding: 8px 14px; cursor: pointer; background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+.g4v3-dot { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: 0; }
+@media (max-width: 700px) { .g4v3-stage { height: 340px; } }
+.g4ev-bar { width: 120px; height: 10px; display: inline-block; }
 
 /* Event display, drawn as a schematic figure */
 #event { display: block; width: 100%; height: 250px; }
@@ -397,8 +421,26 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
   <h2>Electron shower shapes in a LAr calorimeter</h2>
   <p class="task"><span class="hd">Vacancy task 4</span> <span class="nm">(study of electron shower shape development; authorship
     qualification).</span> A Geant4 application in C++ [6] models an ATLAS-like barrel: presampler, fine-η strips, middle and
-    back Pb/LAr layers with ATLAS cell sizes, plus an Fe/scintillator hadronic section. 32 000 showers of e⁻, γ, π⁰ and π⁻
+    back Pb/LAr layers with ATLAS cell sizes, plus an Fe/scintillator hadronic section. 24 000 showers of e⁻, γ, π⁰ and π⁻
     were simulated at 10–100 GeV.</p>
+  <figure class="fig">
+    <div class="ph" style="font-size:15px;margin-bottom:4px">(a) The simulated detector</div>
+    <div class="g4det" id="g4-det"></div>
+    <div class="ph" style="font-size:15px;margin:18px 0 4px">(b) Single simulated showers</div>
+    <div id="g4-ev"></div>
+    <div class="ph" style="font-size:15px;margin:18px 0 4px">(c) One event drawn by Geant4</div>
+    <div id="g4-3d"></div>
+    <figcaption class="cap">(a) Side view of the Geant4 geometry. The electromagnetic layers are drawn to scale in radiation
+      lengths and each line is one Pb/LAr period; the upstream material and the hadronic section are not to scale. Particles enter
+      at a cell centre, without magnetic field. (b) The first five events of each sample, not selected. Each map is the readout window
+      of one layer in the same η×φ frame, so the change of granularity from layer to layer is visible. The two photons of a π⁰ can
+      leave two separate maxima in the strips (π⁰ events 2 and 4), which $E_\text{ratio}$ and $w_\text{s,tot}$ exploit. A π⁻ either crosses the
+      LAr layers with little energy and showers in the hadronic section (events 3 and 4, $R_\text{had}$) or starts its shower early. The strips
+      collect about 10% of the visible energy of a 50 GeV electron without upstream material and about half of it behind 6 $X_0$.
+      (c) Geometry and trajectories of single events exported by the VRML driver of Geant4 from the same application: electrons in
+      red, positrons in blue, photons in green; one event per sample, not selected. The π⁻ shower is longer and reaches the hadronic
+      section; its hadrons are drawn when “other” is switched on.</figcaption>
+  </figure>
   <figure class="fig">
     <div class="panels">
       <div class="panel">
@@ -428,7 +470,7 @@ footer { max-width: 1040px; margin: 0 auto 40px; padding: 0 16px; font-size: 13p
       calorimeter, the main source of data/MC differences in shower shapes. (c) Background rejection versus signal efficiency
       for single-variable cuts. (d) Mean longitudinal energy profile, in radiation lengths, and the fitted energy resolution.</figcaption>
   </figure>
-  <p><i>Geometry.</i> Periods of 1.5 mm Pb and 4.2 mm LAr ($X_0^\text{eff} \approx 19$ mm) give about 4.3, 16 and 2 $X_0$ in the strip,
+  <p><i>Geometry.</i> Periods of 1.5 mm Pb and 4.2 mm LAr ($X_0^\text{eff} \approx 19$ mm) give 4.5, 16.1 and 2.1 $X_0$ in the strip,
     middle and back layers, with ATLAS cell sizes in η×φ, a presampler and an Fe/scintillator section of about 5λ. Upstream material is an
     aluminium slab of 0–6 $X_0$. FTFP_BERT, no magnetic field, impact at a cell centre. <i>Calibration.</i> Sampling fraction 0.241; electron
     resolution $8.4\%/\sqrt{E}$ with a constant term compatible with zero (photons $8.7\%/\sqrt{E} \oplus 0.4\%$); shower maximum at 5.2 $X_0$
@@ -628,6 +670,7 @@ function seg(id, cb) {
 fetch("data.json").then(r => r.json()).then(D => {
   const draws = [];
   window.redraw = () => draws.forEach(f => f());
+  G4View.detector(document.getElementById("g4-det"));
 
   // Headline results
   const k = [];
@@ -785,10 +828,14 @@ fetch("data.json").then(r => r.json()).then(D => {
     sel.onchange = drawE; document.getElementById("E-mvar").onchange = drawE;
     seg("E-roc", d => { rocKey = d.k; drawE(); });
     draws.push(drawE); drawE();
+    const g4ev = G4View.events(document.getElementById("g4-ev"), E.events);
+    draws.push(g4ev.draw);
+    G4View.view3d(document.getElementById("g4-3d"), [{ file: "g4vis/e-_50GeV_X02.0.json", label: "e⁻, 50 GeV, 2 X₀ upstream" }, { file: "g4vis/pi0_50GeV_X02.0.json", label: "π⁰, 50 GeV, 2 X₀ upstream" },
+      { file: "g4vis/pi-_50GeV_X02.0.json", label: "π⁻, 50 GeV, 2 X₀ upstream" }, { file: "g4vis/e-_50GeV_X06.0.json", label: "e⁻, 50 GeV, 6 X₀ upstream" }]);
     const r = E.resolution;
     document.getElementById("E-stats").innerHTML = stat(`${fmt(100 * r["e-"].stochastic, 1)}%/√E`, "e⁻ stochastic term") +
       stat(`${fmt(E.profile["e-"].t_max, 1)} X₀`, "e⁻ shower maximum, 50 GeV") + stat(`${fmt(E.sampling_fraction, 3)}`, "sampling fraction") +
-      stat("32 000", "simulated showers");
+      stat("24 000", "simulated showers");
   }
   // Plotly measures text when it draws; redraw once Latin Modern has loaded.
   if (document.fonts) document.fonts.ready.then(() => window.redraw());

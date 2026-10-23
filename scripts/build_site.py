@@ -39,6 +39,9 @@ def main():
         data["D"] = d
     if e:
         data["E"] = e
+        events = RES / "moduleE_events.json"
+        if events.exists():
+            data["E"]["events"] = json.loads(events.read_text())
     SITE.mkdir(exist_ok=True)
     (SITE / "data.json").write_text(json.dumps(data, separators=(",", ":")))
     figs = SITE / "root"

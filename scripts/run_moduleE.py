@@ -58,6 +58,26 @@ def load(p, E, x0=2.0):
     return ev, v
 
 
+# Single events for the event display on the project page: the first N_EVENTS of each sample, unselected.
+EVENT_SAMPLES = [("e-", 50, 2.0), ("gamma", 50, 2.0), ("pi0", 50, 2.0), ("pi-", 50, 2.0), ("e-", 50, 0.0), ("e-", 50, 6.0)]
+N_EVENTS = 5
+
+
+def example_events():
+    out = []
+    for p, E, x0 in EVENT_SAMPLES:
+        path = OUT / f"{p}_{E}GeV_X0{x0:.1f}.txt"
+        if not path.exists():
+            continue
+        ev = read(path)
+        layers = ("ps", "s1", "s2", "s3", "had")
+        out.append({"particle": p, "E": E, "x0": x0, "events": [
+            {**{l: np.round(ev[l][i], 2).tolist() for l in layers}, "depth": np.round(ev["depth"][i], 1).tolist()}
+            for i in range(N_EVENTS)]})
+    (RES / "moduleE_events.json").write_text(json.dumps(out, separators=(",", ":")))
+    return out
+
+
 def hist_json(x, lo, hi, n=40):
     h, e = np.histogram(np.clip(x, lo, hi), bins=n, range=(lo, hi), density=True)
     return {"edges": e.round(6).tolist(), "density": h.round(6).tolist()}
@@ -185,6 +205,7 @@ def main():
 
     out["sampling_fraction"] = sampling
     (RES / "moduleE.json").write_text(json.dumps(out, indent=1))
+    example_events()
     print(json.dumps({"sampling": sampling, "resolution": {k: (v["stochastic"], v["constant"]) for k, v in out["resolution"].items()},
                       "material_e": out["material"].get("e-")}, indent=1))
 
