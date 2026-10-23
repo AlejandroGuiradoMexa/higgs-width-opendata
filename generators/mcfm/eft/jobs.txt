@@ -1,0 +1,10 @@
+e_sm_on
+MCFM_GHZ2=0.5 e_a2p_I
+MCFM_GHZ2=0.5 e_a2p_SI
+MCFM_GHZ2=0.5 e_a2p_on
+MCFM_GHZ2=-0.5 e_a2m_I
+MCFM_GHZ2=-0.5 e_a2m_SI
+MCFM_GHZ2=-0.5 e_a2m_on
+MCFM_GHZ4=0.5 e_a3p_I
+MCFM_GHZ4=0.5 e_a3p_SI
+MCFM_GHZ4=0.5 e_a3p_on

@@ -1,0 +1,12 @@
+.venv/
+data/
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+g4calo/out*/
+g4calo/build/
+generators/mcfm/output/*ggH_S.*
+generators/mcfm/output/ggH_S.log
+.pytest_cache/
+.DS_Store
+.venv-root/

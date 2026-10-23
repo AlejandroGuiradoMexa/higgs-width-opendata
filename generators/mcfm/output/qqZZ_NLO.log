@@ -1,0 +1,579 @@
+ ************** MCFM - version 7.0 ****************
+ *                                                *
+ * MCFM, v7.0                   March 20th, 2015  *
+ *                                                *
+ * Authors: John Campbell, Keith Ellis,           *
+ *          Walter Giele, Ciaran Williams         *
+ *         (johnmc@fnal.gov, ellis@fnal.gov,      *
+ *          giele@fnal.gov,ciaran@fnal.gov)       *
+ *                                                *
+ * For details see:                               *
+ *                                                *
+ *  arXiv:1502.02990 (VBF and VBS Higgs)          *
+ *  arXiv:1403.2641  (Triphoton production)       *
+ *  arXiv:1312.1628  (gg->WW, Higgs interference) *
+ *  arXiv:1311.3589  (gg->ZZ, Higgs interference) *
+ *  Phys.Rev.D87:114006, arXiv:1302.3856          *
+ *  (tZ, tH -- with R. Rontsch)                   *
+ *  arXiv:1211.6390 (DM, P. Fox and C. Williams)  *
+ *  JHEP 1211:162 (2012), arXiv:1208.0566         *
+ *  (Z+gam+jet,Z+gam+gam -- with H. Hartanto)     *
+ *  arXiv:1204.1513 (top production+decay)        *
+ *  JHEP 1207:052 (2012), arXiv:1204.5678 (ttW)   *
+ *  JHEP 1110:005 (2011), arXiv:1107.5569         *
+ *         (gg->WW,Higgs intference)              *
+ *  JHEP 1107:018 (2011), arXiv:1105.0020         *
+ *         (diboson update)                       *
+ *  JHEP 1103:027 (2011), arXiv:1011.6647         *
+ *         (Wbb for mb>0, with S. Badger)         *
+ *  Phys.Rev.D81:074023, arXiv:1001.4495 (H+2jet) *
+ *                                                *
+ *  P.R.L. 102:142001, arXiv:0903.0005 [hep-ph]   *
+ *    (t-channel single top + explicit b,         *
+ *      JC, R.Frederix, F.Maltoni, F.Tramontano)  *
+ *  N.P.B 726:109(2005), hep-ph/0506289 (W+t)     *
+ *  Phys.Rev.D70:094012, hep-ph/0408158 (Sngl Top)*
+ *       (with Francesco Tramontano)              *
+ *                                                *
+ *  Phys.Rev.D65:113007, hep-ph/0202176 (W,Z+2j)  *
+ *  Phys.Rev.D62:114012, hep-ph/0006304 (W,Z+bb)  *
+ *  Phys.Rev.D60:113006, hep-ph/9905386 (diboson) *
+ *                                                *
+ * On the web:  http://mcfm.fnal.gov/             *
+ **************************************************
+
+ * Using input file named qqZZ_NLO.DAT                                                            
+
+ * [Flags to specify the mode in which MCFM is run]                                          
+ *                   -1            [nevtrequested] 
+ *                    F            [creatent] 
+ *                    F            [skipnt] 
+ *                    F            [dswhisto] 
+ *                    F            [writetop] 
+ *                    T            [writedat] 
+ *                    F            [writegnu] 
+ *                    F            [writeroot] 
+ *                    F            [writepwg] 
+
+ * [General options to specify the process and execution]                                    
+ *                   81            [nproc] 
+ *                 tota            [part] 
+ * qqZZ_NLO                        [runstring] 
+ *           13000.0000            [sqrts] 
+ *                    1            [ih1] 
+ *                    1            [ih2] 
+ *             125.0000            [hmass] 
+ *               0.5000            [scale] 
+ *               0.5000            [facscale] 
+ * m(3456)                         [dynamicscale] 
+ *                    F            [zerowidth] 
+ *                    F            [removebr] 
+ *                    5            [itmx1] 
+ *               100000            [ncall1] 
+ *                    8            [itmx2] 
+ *               200000            [ncall2] 
+ *                 1500            [ij] 
+ *                    F            [dryrun] 
+ *                    T            [Qflag] 
+ *                    T            [Gflag] 
+
+ * [Heavy quark masses]                                                                      
+ *             173.2000            [top mass] 
+ *               4.7500            [bottom mass] 
+ *               1.2750            [charm mass] 
+
+ * [Pdf selection]                                                                           
+ *              CT10.00            [pdlabel] 
+ *                    4            [NGROUP] 
+ *                   46            [NSET] 
+ * cteq6mE.LHgrid                  [LHAPDF group] 
+ *                   -1            [LHAPDF set] 
+
+ * [Jet definition and event cuts]                                                           
+ *              12.0000            [m34min] 
+ *           13000.0000            [m34max] 
+ *              12.0000            [m56min] 
+ *           13000.0000            [m56max] 
+ *             220.0000            [m3456min] 
+ *            2000.0000            [m3456max] 
+ *                    T            [inclusive] 
+ *                 ankt            [algorithm] 
+ *              15.0000            [ptjetmin] 
+ *               0.0000            [etajetmin] 
+ *               3.0000            [etajetmax] 
+ *               0.5000            [Rcut] 
+ *                    T            [makecuts] 
+ *               6.0000            [leptpt] 
+ *               2.5000            [leptrap] 
+ *    0.000,   0.000                [leptveto] 
+ *               0.0000            [misspt] 
+ *               6.0000            [leptpt2] 
+ *               2.5000            [leptrap2] 
+ *    0.000,   0.000                [leptveto2] 
+ *               0.0000            [mtrans34cut] 
+ *               0.0000            [Rjlmin] 
+ *               0.1000            [Rllmin] 
+ *               0.0000            [delyjjmin] 
+ *                    F            [jetsopphem] 
+ *                    0            [lbjscheme] 
+ *               0.0000            [ptbjetmin] 
+ *              99.0000            [etabjetmax] 
+
+ * [Settings for photon processes]                                                           
+ *                    F            [frag] 
+ *             BFGsetII            [fragset] 
+ *              62.7703            [frag_scale] 
+ *              20.0000            [gammpt] 
+ *               2.5000            [gammrap] 
+ *              20.0000            [gammpt2] 
+ *              20.0000            [gammpt3] 
+ *               0.7000            [Rgalmin] 
+ *               0.4000            [Rgagamin] 
+ *               0.4000            [Rgajetmin] 
+ *               0.7000            [cone_ang] 
+ *               0.5000            [epsilon_h] 
+
+ * [Anomalous couplings of the W and Z]                                                      
+ *               0.0000            [delg1_z] 
+ *               0.0000            [delk_z] 
+ *               0.0000            [delk_g] 
+ *               0.0000            [lambda_z] 
+ *               0.0000            [lambda_g] 
+ *               0.0000            [h1Z] 
+ *               0.0000            [h1gam] 
+ *               0.0000            [h2Z] 
+ *               0.0000            [h2gam] 
+ *               0.0000            [h3Z] 
+ *               0.0000            [h3gam] 
+ *               0.0000            [h4Z] 
+ *               0.0000            [h4gam] 
+ *               2.0000            [tevscale] 
+
+ * [Anomalous width of the Higgs]                                                            
+ *               1.0000            [Gamma_H/Gamma_H(SM)] 
+
+ * [How to resume/save a run]                                                                
+ *                    F            [readin] 
+ *                    F            [writeout] 
+ *                                 [ingridfile] 
+ *                                 [outgridfile] 
+
+ * [Technical parameters that should not normally be changed]
+
+ *                    F            [debug] 
+ WARNING: no gluon-gluon contribution included
+
+
+ *************** Anomalous couplings ****************
+ *                                                  *
+ *            Delta_g1(Z)  =    0.00                *
+ *            Delta_g1(g)  =    0.00                *
+ *            Delta_K(Z)   =    0.00                *
+ *            Delta_K(g)   =    0.00                *
+ *            Lambda(Z)    =    0.00                *
+ *            Lambda(g)    =    0.00                *
+ *            TeV-scale    =    2.00 TeV            *
+ ****************************************************
+
+ input parameters for vegas:  ndim= 11  ncall= 100000.
+                              it=    0  itmx=    5
+                              nprn=  0  alph= 1.50
+                              mds=  0   nd= 100
+                              xl( 1)=   0.000     xu( 1)=   1.000    
+                              xl( 2)=   0.000     xu( 2)=   1.000    
+                              xl( 3)=   0.000     xu( 3)=   1.000    
+                              xl( 4)=   0.000     xu( 4)=   1.000    
+                              xl( 5)=   0.000     xu( 5)=   1.000    
+                              xl( 6)=   0.000     xu( 6)=   1.000    
+                              xl( 7)=   0.000     xu( 7)=   1.000    
+                              xl( 8)=   0.000     xu( 8)=   1.000    
+                              xl( 9)=   0.000     xu( 9)=   1.000    
+                              xl(10)=   0.000     xu(10)=   1.000    
+                              xl(11)=   0.000     xu(11)=   1.000    
+ ZZlept
+
+ ****************** Basic mass cuts *****************
+ *                                                  *
+ *             12.00  <   m34  < 13000.00           *
+ *             12.00  <   m56  < 13000.00           *
+ *           220.00  <   m3456  <  2000.00          *
+ ****************************************************
+
+ ****************** Generic cuts ********************
+ *                                                  *
+ *        pt(lepton)      >     6.00 GeV            *
+ *      |eta(lepton)|     <     2.50                *
+ *       pt(missing)      >     0.00 GeV            *
+ *     pt(2nd+ lepton)    >     6.00 GeV            *
+ *   |eta(2nd+ lepton)|   <     2.50                *
+ *  (3,4) transverse mass >     0.00 GeV            *
+ *      R(jet,lepton)     >     0.00                *
+ *     R(lepton,lepton)   >     0.10                *
+ * |eta(jet1)-eta(jet2)|  >     0.00                *
+ ****************************************************
+
+ ************** Dynamic scale choice ****************
+ *                                                  *
+ *                 RENORMALIZATION                  *
+ *       mu_ren  =  0.50 x m(3456)                  *
+ *                                                  *
+ *                  FACTORIZATION                   *
+ *       mu_fac  =  0.50 x m(3456)                  *
+ *                                                  *
+ ****************************************************
+ Poles cancelled!
+
+************* Integration by Vegas (iteration   1) **************
+*                                                               *
+*  integral  =  9.8925368       accum. integral =  9.8925368    *
+*  std. dev. = 0.88618279       accum. std. dev = 0.88618279    *
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration = 0.1012E-12   ****************
+
+
+************* Integration by Vegas (iteration   2) **************
+*                                                               *
+*  integral  =  9.7581077       accum. integral =  9.7626871    *
+*  std. dev. = 0.16641969       accum. std. dev = 0.16356057    *
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration = 0.2201E-01   ****************
+
+
+************* Integration by Vegas (iteration   3) **************
+*                                                               *
+*  integral  =  9.8113316       accum. integral =  9.8000418    *
+*  std. dev. = 0.89918505E-01   accum. std. dev = 0.78796122E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration = 0.4485E-01   ****************
+
+
+************* Integration by Vegas (iteration   4) **************
+*                                                               *
+*  integral  =  9.8869504       accum. integral =  9.8559402    *
+*  std. dev. = 0.58689106E-01   accum. std. dev = 0.47068005E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration = 0.2899       ****************
+
+
+************* Integration by Vegas (iteration   5) **************
+*                                                               *
+*  integral  =  9.8156201       accum. integral =  9.8364412    *
+*  std. dev. = 0.48637540E-01   accum. std. dev = 0.33823372E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration = 0.3061       ****************
+
+ ****************************************************
+ * Writing out vegas grid to ZZlept_tota_CT10.00_0___0___qqZZ_NLO_dvegas_virt.grid                                                          *
+ ****************************************************
+ Adjusting number of points for real to      405565
+
+ input parameters for vegas:  ndim= 13  ncall= 405565.
+                              it=    6  itmx=    5
+                              nprn=  0  alph= 1.50
+                              mds=  0   nd= 100
+                              xl( 1)=   0.000     xu( 1)=   1.000    
+                              xl( 2)=   0.000     xu( 2)=   1.000    
+                              xl( 3)=   0.000     xu( 3)=   1.000    
+                              xl( 4)=   0.000     xu( 4)=   1.000    
+                              xl( 5)=   0.000     xu( 5)=   1.000    
+                              xl( 6)=   0.000     xu( 6)=   1.000    
+                              xl( 7)=   0.000     xu( 7)=   1.000    
+                              xl( 8)=   0.000     xu( 8)=   1.000    
+                              xl( 9)=   0.000     xu( 9)=   1.000    
+                              xl(10)=   0.000     xu(10)=   1.000    
+                              xl(11)=   0.000     xu(11)=   1.000    
+                              xl(12)=   0.000     xu(12)=   1.000    
+                              xl(13)=   0.000     xu(13)=   1.000    
+
+ *********** Basic jet-defining parameters **********
+ *     (Anti-kt algorithm - see arXiv:0802.1189)    *
+ *                                                  *
+ *     pt(jet)         >  15.0000                   *
+ *   |pseudo-rap(jet)| >   0.0000                   *
+ *   |pseudo-rap(jet)| <   3.0000                   *
+ * pseudo-cone size, R :   0.5000                   *
+ *                                                  *
+ *    Cross-section defined by:   0 <= jets <= 1    *
+ ****************************************************
+
+************* Integration by Vegas (iteration   1) **************
+*                                                               *
+*  integral  =  1.5018600       accum. integral =  1.5018600    *
+*  std. dev. = 0.10343896       accum. std. dev = 0.10343896    *
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration =  0.000       ****************
+
+
+************* Integration by Vegas (iteration   2) **************
+*                                                               *
+*  integral  =  1.9086569       accum. integral =  1.5391159    *
+*  std. dev. = 0.32577520       accum. std. dev = 0.98588590E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration =  1.402       ****************
+
+
+************* Integration by Vegas (iteration   3) **************
+*                                                               *
+*  integral  =  1.8466265       accum. integral =  1.6631246    *
+*  std. dev. = 0.11992803       accum. std. dev = 0.76158228E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration =  2.657       ****************
+
+
+************* Integration by Vegas (iteration   4) **************
+*                                                               *
+*  integral  =  1.5809931       accum. integral =  1.6004957    *
+*  std. dev. = 0.42498684E-01   accum. std. dev = 0.37111460E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration =  2.069       ****************
+
+
+************* Integration by Vegas (iteration   5) **************
+*                                                               *
+*  integral  =  1.5816445       accum. integral =  1.5921726    *
+*  std. dev. = 0.41739106E-01   accum. std. dev = 0.27734141E-01*
+*   max. wt. =   0.333268                                       *
+*                                                               *
+**************   chi**2/iteration =  1.581       ****************
+
+ ****************************************************
+ * Writing out vegas grid to ZZlept_tota_CT10.00_0___0___qqZZ_NLO_dvegas_real.grid                                                          *
+ ****************************************************
+
+ ****************************************************
+ * Reading in vegas grid from ZZlept_tota_CT10.00_0___0___qqZZ_NLO_dvegas_virt.grid                                                         *
+ ****************************************************
+
+ input parameters for vegas:  ndim= 11  ncall= 200000.
+                              it=    6  itmx=    8
+                              nprn=  0  alph= 1.50
+                              mds=  0   nd= 100
+                              xl( 1)=   0.000     xu( 1)=   1.000    
+                              xl( 2)=   0.000     xu( 2)=   1.000    
+                              xl( 3)=   0.000     xu( 3)=   1.000    
+                              xl( 4)=   0.000     xu( 4)=   1.000    
+                              xl( 5)=   0.000     xu( 5)=   1.000    
+                              xl( 6)=   0.000     xu( 6)=   1.000    
+                              xl( 7)=   0.000     xu( 7)=   1.000    
+                              xl( 8)=   0.000     xu( 8)=   1.000    
+                              xl( 9)=   0.000     xu( 9)=   1.000    
+                              xl(10)=   0.000     xu(10)=   1.000    
+                              xl(11)=   0.000     xu(11)=   1.000    
+
+************* Integration by Vegas (iteration   1) **************
+*                                                               *
+*  integral  =  9.9063499       accum. integral =  9.9063499    *
+*  std. dev. = 0.35092138E-01   accum. std. dev = 0.35092138E-01*
+*   max. wt. =   0.110996E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.4893E-10   ****************
+
+ Writing out intermediate results for iteration           1
+
+************* Integration by Vegas (iteration   2) **************
+*                                                               *
+*  integral  =  9.9262290       accum. integral =  9.9169846    *
+*  std. dev. = 0.32717988E-01   accum. std. dev = 0.23930449E-01*
+*   max. wt. =   0.110996E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.1700       ****************
+
+ Writing out intermediate results for iteration           2
+
+************* Integration by Vegas (iteration   3) **************
+*                                                               *
+*  integral  =  9.9785841       accum. integral =  9.9325056    *
+*  std. dev. = 0.41232515E-01   accum. std. dev = 0.20697187E-01*
+*   max. wt. =   0.281967E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.9160       ****************
+
+ Writing out intermediate results for iteration           3
+
+************* Integration by Vegas (iteration   4) **************
+*                                                               *
+*  integral  =  10.015344       accum. integral =  9.9410054    *
+*  std. dev. = 0.61209091E-01   accum. std. dev = 0.19606625E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration =  1.158       ****************
+
+ Writing out intermediate results for iteration           4
+
+************* Integration by Vegas (iteration   5) **************
+*                                                               *
+*  integral  =  9.9831937       accum. integral =  9.9470522    *
+*  std. dev. = 0.47933736E-01   accum. std. dev = 0.18147201E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration =  1.035       ****************
+
+ Writing out intermediate results for iteration           5
+
+************* Integration by Vegas (iteration   6) **************
+*                                                               *
+*  integral  =  9.9069235       accum. integral =  9.9366265    *
+*  std. dev. = 0.30630609E-01   accum. std. dev = 0.15612838E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration =  1.082       ****************
+
+ Writing out intermediate results for iteration           6
+
+************* Integration by Vegas (iteration   7) **************
+*                                                               *
+*  integral  =  9.9329526       accum. integral =  9.9357739    *
+*  std. dev. = 0.28401770E-01   accum. std. dev = 0.13681872E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.9038       ****************
+
+ Writing out intermediate results for iteration           7
+
+************* Integration by Vegas (iteration   8) **************
+*                                                               *
+*  integral  =  9.9472871       accum. integral =  9.9379322    *
+*  std. dev. = 0.28484842E-01   accum. std. dev = 0.12332977E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.7938       ****************
+
+ Adjusting number of points for real to      920075
+ ****************************************************
+ * Reading in vegas grid from ZZlept_tota_CT10.00_0___0___qqZZ_NLO_dvegas_real.grid                                                         *
+ ****************************************************
+
+ input parameters for vegas:  ndim= 13  ncall= 920075.
+                              it=    9  itmx=    8
+                              nprn=  0  alph= 1.50
+                              mds=  0   nd= 100
+                              xl( 1)=   0.000     xu( 1)=   1.000    
+                              xl( 2)=   0.000     xu( 2)=   1.000    
+                              xl( 3)=   0.000     xu( 3)=   1.000    
+                              xl( 4)=   0.000     xu( 4)=   1.000    
+                              xl( 5)=   0.000     xu( 5)=   1.000    
+                              xl( 6)=   0.000     xu( 6)=   1.000    
+                              xl( 7)=   0.000     xu( 7)=   1.000    
+                              xl( 8)=   0.000     xu( 8)=   1.000    
+                              xl( 9)=   0.000     xu( 9)=   1.000    
+                              xl(10)=   0.000     xu(10)=   1.000    
+                              xl(11)=   0.000     xu(11)=   1.000    
+                              xl(12)=   0.000     xu(12)=   1.000    
+                              xl(13)=   0.000     xu(13)=   1.000    
+
+************* Integration by Vegas (iteration   1) **************
+*                                                               *
+*  integral  =  1.5933646       accum. integral =  1.5933646    *
+*  std. dev. = 0.20177141E-01   accum. std. dev = 0.20177141E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.3071E-10   ****************
+
+ Writing out intermediate results for iteration           1
+
+************* Integration by Vegas (iteration   2) **************
+*                                                               *
+*  integral  =  1.6058774       accum. integral =  1.5981895    *
+*  std. dev. = 0.25469345E-01   accum. std. dev = 0.15815599E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.1468       ****************
+
+ Writing out intermediate results for iteration           2
+
+************* Integration by Vegas (iteration   3) **************
+*                                                               *
+*  integral  =  1.6289353       accum. integral =  1.6084320    *
+*  std. dev. = 0.22376598E-01   accum. std. dev = 0.12915299E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.7001       ****************
+
+ Writing out intermediate results for iteration           3
+
+************* Integration by Vegas (iteration   4) **************
+*                                                               *
+*  integral  =  1.5910850       accum. integral =  1.6059555    *
+*  std. dev. = 0.31648245E-01   accum. std. dev = 0.11957910E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.5531       ****************
+
+ Writing out intermediate results for iteration           4
+
+************* Integration by Vegas (iteration   5) **************
+*                                                               *
+*  integral  =  1.6283951       accum. integral =  1.6092399    *
+*  std. dev. = 0.28878474E-01   accum. std. dev = 0.11048202E-01*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.5437       ****************
+
+ Writing out intermediate results for iteration           5
+
+************* Integration by Vegas (iteration   6) **************
+*                                                               *
+*  integral  =  1.6166872       accum. integral =  1.6108038    *
+*  std. dev. = 0.21429243E-01   accum. std. dev = 0.98199105E-02*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.4542       ****************
+
+ Writing out intermediate results for iteration           6
+
+************* Integration by Vegas (iteration   7) **************
+*                                                               *
+*  integral  =  1.6144202       accum. integral =  1.6117549    *
+*  std. dev. = 0.16438412E-01   accum. std. dev = 0.84302478E-02*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.3846       ****************
+
+ Writing out intermediate results for iteration           7
+
+************* Integration by Vegas (iteration   8) **************
+*                                                               *
+*  integral  =  1.6324844       accum. integral =  1.6168433    *
+*  std. dev. = 0.14780229E-01   accum. std. dev = 0.73228313E-02*
+*   max. wt. =   0.466459E-01                                   *
+*                                                               *
+**************   chi**2/iteration = 0.5414       ****************
+
+
+
+Value of final tota integral is   11.5548     +/-  0.143432E-01 fb
+
+ Total number of shots       :      8960600
+ Total no. failing cuts      :      4581476
+ Number failing jet cuts     :            0
+ Number failing process cuts :      3918595
+
+   Jet efficiency : 100.00%
+   Cut efficiency :  52.78%
+ Total efficiency :  52.78%
+
+ Contribution from parton sub-processes:
+ ---------------------------------------
+       GG     |        0.0000        0.00%
+       GQ     |       0.14566        1.26%
+       GQB    |       0.18651E-01    0.16%
+       QG     |       0.14516        1.26%
+       QBG    |       0.16606E-01    0.14%
+       QQ     |        0.0000        0.00%
+       QBQB   |        0.0000        0.00%
+       QQB    |        5.6155       48.60%
+       QBQ    |        5.6132       48.58%
+ ---------------------------------------
+
+ ****************************************************
+ output files  ZZlept_tota_CT10.00_0___0___qqZZ_NLO
+ ****************************************************

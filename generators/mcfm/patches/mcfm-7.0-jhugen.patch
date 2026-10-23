@@ -1,0 +1,114 @@
+diff --git a/QCDLoop/makefile b/QCDLoop/makefile
+index e68987f..459f1d1 100755
+--- a/QCDLoop/makefile
++++ b/QCDLoop/makefile
+@@ -1,7 +1,7 @@
+ FC = gfortran
+ HERE   = $(PWD)
+ INCDIR  = $(HERE)/Include/
+-FFLAGS =  -g -I -O2 $(INCDIR)
++FFLAGS = -std=legacy -fallow-argument-mismatch -w   -g -I -O2 $(INCDIR)
+ #FFLAGS =  -fno-f2c -fopenmp -O2 -g -I $(INCDIR)
+ QLDIR  = $(HERE)/ql
+ FFDIR  = $(HERE)/ff
+diff --git a/makefile b/makefile
+index 17c642b..4361cad 100755
+--- a/makefile
++++ b/makefile
+@@ -64,13 +64,13 @@ ifeq ($(DoCompileForMELA),YES)
+   FFLAGS 	= -fno-automatic -fno-f2c $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+   #FFLAGS 	= -fno-automatic -fno-f2c -cpp -DCompileForMELA $(OMPFLAG) -O0 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+   #FFLAGS 	=  -fno-f2c $(OMPFLAG) -O2 -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+-  F90FLAGS = -fno-automatic -fno-f2c -DCompileForMELA $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
++  F90FLAGS = -fallow-argument-mismatch -w  -fno-automatic -fno-f2c -DCompileForMELA $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
+   #F90FLAGS = -fno-f2c $(OMPFLAG) -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
+ else
+   FFLAGS 	= -fno-automatic -fno-f2c $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+   #FFLAGS 	= -fno-automatic -fno-f2c -cpp $(OMPFLAG) -O0 -fPIC -g -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+   #FFLAGS 	=  -fno-f2c $(OMPFLAG) -O2 -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+-  F90FLAGS = -fno-automatic -fno-f2c $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
++  F90FLAGS = -fallow-argument-mismatch -w  -fno-automatic -fno-f2c $(OMPFLAG) -O2 -fPIC -g -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
+   #F90FLAGS = -fno-f2c $(OMPFLAG) -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
+ endif
+ 
+diff --git a/src/Need/mcfm_init.f b/src/Need/mcfm_init.f
+index 319075c..52f1658 100755
+--- a/src/Need/mcfm_init.f
++++ b/src/Need/mcfm_init.f
+@@ -38,6 +38,7 @@ c      include 'APPLinclude.f'
+ * Welcome banner
+       call banner
+       call reader_input(inputfile,workdir)
++      call read_anom_env
+ 
+       first_time = .true.
+ 
+diff --git a/src/Parton/jeppe02.f b/src/Parton/jeppe02.f
+index 289ccbc..a5498a2 100755
+--- a/src/Parton/jeppe02.f
++++ b/src/Parton/jeppe02.f
+@@ -1,7 +1,7 @@
+       subroutine jeppe1(nx,my,xx,yy,ff,cc)
+       implicit real*8(a-h,o-z)
+       parameter(nnx=49,mmy=37)
+-      dimension xx(nx),yy(my),ff(nnx,mmy),ff1(nnx,mmy),ff2(nnx,mmy),
++      dimension xx(nx),yy(my),ff(nnx,*),ff1(nnx,mmy),ff2(nnx,mmy),
+      xff12(nnx,mmy),yy0(4),yy1(4),yy2(4),yy12(4),z(16),wt(16,16),
+      xcl(16),cc(nx,my,4,4),iwt(16,16)
+ 
+diff --git a/src/Parton/mrst2004.f b/src/Parton/mrst2004.f
+index c06074a..503417a 100755
+--- a/src/Parton/mrst2004.f
++++ b/src/Parton/mrst2004.f
+@@ -274,7 +274,7 @@ c notation: 1=uval 2=val 3=glue 4=usea 5=chm 6=str 7=btm 8=dsea
+       subroutine jeppe1_2004(nx,my,xx,yy,ff,cc)
+       implicit real*8(a-h,o-z)
+       parameter(nnx=49,mmy=37)
+-      dimension xx(nx),yy(my),ff(nnx,mmy),ff1(nnx,mmy),ff2(nnx,mmy),
++      dimension xx(nx),yy(my),ff(nnx,*),ff1(nnx,mmy),ff2(nnx,mmy),
+      xff12(nnx,mmy),yy0(4),yy1(4),yy2(4),yy12(4),z(16),wt(16,16),
+      xcl(16),cc(nx,my,4,4),iwt(16,16)
+ 
+diff --git a/src/User/usercode_f77.f b/src/User/usercode_f77.f
+index c331bc5..5909b5f 100755
+--- a/src/User/usercode_f77.f
++++ b/src/User/usercode_f77.f
+@@ -131,3 +131,38 @@ c     the run of the program (itno=0).
+       double precision xsec,xsec_err
+       end
+ c---- SSend
++
++      subroutine read_anom_env
++************************************************************************
++*   Reads JHUGen-style anomalous HZZ couplings from environment
++*   variables so they can be scanned without recompiling:
++*     MCFM_GHZ2, MCFM_GHZ4 : real parts of ghz2 (a2) and ghz4 (a3)
++*   Anomalous couplings are switched on only if one of them is set.
++************************************************************************
++      implicit none
++      include 'spinzerohiggs_anomcoupl.f'
++      character*64 val
++      integer ln
++      double precision x
++
++      call get_environment_variable('MCFM_GHZ2', val, ln)
++      if (ln .gt. 0) then
++        read(val,*) x
++        ghz2 = dcmplx(x, 0d0)
++        AllowAnomalousCouplings = 1
++      endif
++      call get_environment_variable('MCFM_GHZ4', val, ln)
++      if (ln .gt. 0) then
++        read(val,*) x
++        ghz4 = dcmplx(x, 0d0)
++        AllowAnomalousCouplings = 1
++      endif
++      if (AllowAnomalousCouplings .eq. 1) then
++c--- SM top and bottom Yukawas in the gg->H loop (their defaults are 0)
++        kappa_top = (1d0,0d0)
++        kappa_bot = (1d0,0d0)
++        write(6,*) 'read_anom_env: ghz1, ghz2, ghz4 = ',
++     &    ghz1, ghz2, ghz4
++      endif
++      return
++      end
